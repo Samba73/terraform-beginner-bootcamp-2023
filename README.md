@@ -95,3 +95,49 @@ chmod 744 ./bin/install_terraform_cli
 Careful consideration should be given using Init in the `.gitpod.yml` because it will not rerun this when existing workspace is started.
 
 - [Gitpod Tasks](https://www.gitpod.io/docs/configure/workspaces/tasks)
+
+### Working with Env Vars
+
+All Environment variables (Env Vars) can be listed using the `env` command.
+
+Specific env vars can be listed using grep eg. `env | grep AWS_`
+
+#### Setting and Unsetting Env Vars
+
+In the terminal, set environment variable using `export PROJECT_NAME='terraform-bootcamp`
+
+In the terminal, unset environment variable using `unset PROJECT_NAME`
+
+Env Var can be passed to the script in execution as below (env var is temporary for script execution)
+``` sh
+    PROJECT_NAME='terraform-bootcamp' ./bin/print_envvar
+```
+
+Env Var can be set within the bash script (set before used in the script) as below
+``` sh
+    #!/usr/bin/env bash
+    PROJECT_NAME='terraform-bootcamp'
+
+    echo $PROJECT_NAME
+```
+#### Printing Env Vars
+
+`echo` is used to print Env Var to console `echo $PROJECT_NAME`
+
+#### Env Vars scope
+
+Env Var scope is **_limited_ to the terminal window where it is set**
+
+For global persistence of Env Vars (available for all terminal windows), Env Vars should be set in bash profile eg. `.bash_profile`
+
+#### Persisting Env Vars in Gitpod
+
+Env Vars in gitpod can be persisted by storing in Gitpod Secrets Storage
+
+```
+gp env PROJECT_NAME='terraform-bootcamp'
+```
+
+Since above sets Env Var at gitpod level, all workspaces launched will have the Env Var available for all terminal windows opened in the workspaces.
+
+Env Vars can be set in `.gitpod.yml` as well, but advised to only have non-senstive data
