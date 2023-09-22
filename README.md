@@ -167,3 +167,57 @@ If after executing the above aws cli command and successful a json payload retur
     "Arn": "arn:aws:iam::111111111111:user/terraform-beginner-bootcamp"
 }
 ```
+## Terraform Basics
+
+### Terraform Registry
+
+Terraform sources their providers and modules from the Terraform registry which located at [registry.terraform.io](https://registry.terraform.io/)
+
+- **Providers** are Terraform plugins that enables interaction with API (Cloud Providers). They tell Terraform with which services it need to interact.
+- **Modules** are any Terraform configuration file (.tf) in a directory, even just one, forms a module. Module allows to group resources together and reuse this group later, possibly many times.  
+
+- [Random Terraform Provider](https://registry.terraform.io/providers/hashicorp/random/latest)
+
+### Terraform Console
+
+We can see a list of all the Terraform commands by simply typing `terraform`
+
+#### Terraform Init
+
+At the start of a new terraform project `terraform init` will be executed to download the binaries for the terraform providers that will be used.
+
+#### Terraform Plan
+
+`terraform plan`
+
+This will generate out a changeset, about the state of infrastructure and what will be changed.
+
+This changeset can can be setn to apply, but often ignored.
+
+#### Terraform Apply
+
+`terraform apply`
+
+This will run a plan and pass the changeset to be executed by terraform. Apply should prompt user for confirmation to proceed (Yes or No).
+
+There is option that can be included in the apply to auto approve the confirmation `terraform apply --auto-approve`
+
+### Terraform Lock Files
+
+`.terraform.lock.hcl` contains the locked versioning for the providers or modules that should be used.
+
+> [!IMPORTANT]
+> The Terraform Lock File should be committed to Version Control System (VCS) eg. GitHub
+
+### Terraform State Files
+
+- `.terraform.tfstate` contains information about the current state of the infrastructure.
+
+> [!IMPORTANT]
+> This file should not be committed to Version Control System (VCS)
+> This file contain sensitive data, the state of infrasturucture will be unknown if this file is lost
+
+- `.terraform.tfstate.backup` is the previous state file state.
+
+### Terraform Directory
+- `.terraform` directory contains binaries of terraform providers.
