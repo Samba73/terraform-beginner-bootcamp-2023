@@ -1,4 +1,10 @@
 terraform {
+  cloud {
+    organization = "beginner-bootcamp"
+    workspaces {
+      name = "terra-house-1"
+    }
+  }
   required_providers {
     random = {
       source = "hashicorp/random"
@@ -11,9 +17,7 @@ terraform {
   }
 }
 # Configure the AWS provider
-provider "aws" {
-  # Configuration options
-}
+provider "aws" {}
 
 # https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string
 
