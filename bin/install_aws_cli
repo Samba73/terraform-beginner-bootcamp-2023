@@ -1,0 +1,18 @@
+#!/usr.bin/env bash
+
+# change directory to workspace for installation
+cd /workspace
+
+# remove the aws cli if exists to avoid message that ask for confirmation
+rm -f '/workspace/awscliv2.zip'
+rm -rf '/workspace/aws'
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+# To check and confirm AWS credentials
+aws sts get-caller-identity
+
+# Change directory to project root
+cd $PROJECT_ROOT
