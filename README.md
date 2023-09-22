@@ -330,11 +330,11 @@ This will launch bash terminal with below options
 - Enter the token, the login will be validated
 > [!NOTE]
 > If the login is not validated, create open the file manually
-> ```sh
+ ```sh
   touch /home/gitpod/.terraform.d/credentials.tfrc.json
   open /home/gitpod/.terraform.d/credentials.tfrc.json
 ```
-> Provide the following code
+ Provide the following code
 ```
   {
     "credentials": {
