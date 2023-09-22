@@ -207,7 +207,6 @@ There is option that can be included in the apply to auto approve the confirmati
 `.terraform.lock.hcl` contains the locked versioning for the providers or modules that should be used.
 
 > [!IMPORTANT]
-
 > The Terraform Lock File should be committed to Version Control System (VCS) eg. GitHub
 
 ### Terraform State Files
@@ -215,7 +214,6 @@ There is option that can be included in the apply to auto approve the confirmati
 - `.terraform.tfstate` contains information about the current state of the infrastructure.
 
 > [!IMPORTANT]
-
 > This file should not be committed to Version Control System (VCS)
 > This file contain sensitive data, the state of infrasturucture will be unknown if this file is lost
 
