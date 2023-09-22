@@ -202,14 +202,20 @@ This will run a plan and pass the changeset to be executed by terraform. Apply s
 
 There is option that can be included in the apply to auto approve the confirmation `terraform apply --auto-approve`
 
-### Terraform Lock Files
+#### Terraform Destroy
+
+- `terraform destroy` will be executed to destroy the resource(s).
+- `terraform destroy --auto-approve` will be executed to destroy the resource(s) without waiting for user confirmation
+
+### Terraform Folder Structure
+#### Terraform Lock Files
 
 `.terraform.lock.hcl` contains the locked versioning for the providers or modules that should be used.
 
 > [!IMPORTANT]
 > The Terraform Lock File should be committed to Version Control System (VCS) eg. GitHub
 
-### Terraform State Files
+#### Terraform State Files
 
 - `.terraform.tfstate` contains information about the current state of the infrastructure.
 
@@ -219,5 +225,6 @@ There is option that can be included in the apply to auto approve the confirmati
 
 - `.terraform.tfstate.backup` is the previous state file state.
 
-### Terraform Directory
+#### Terraform Directory
 - `.terraform` directory contains binaries of terraform providers.
+
