@@ -2,6 +2,7 @@
 
 ## Table Of Content
 
+- [Week0 Architecture](#week0-architecture)
 - [Semantic Versioning](#semantic-versioning)
 - [Install Terraform CLI](#install-the-terraform-cli)
   - [Considerations with the Terraform CLI changes](#considerations-with-the-terraform-cli-changes)
@@ -42,6 +43,11 @@
   - [Terraform Init](#terraform-init)
   - [Terraform Login](#terraform-login)
   - [Terraform Apply](#terraform-apply)
+
+## Week0 Architecture
+
+![image](https://github.com/Samba73/terraform-beginner-bootcamp-2023/assets/90577515/864add37-4c6e-469a-9330-ed56fddfc2db)
+
 
 ## Semantic Versioning
 
