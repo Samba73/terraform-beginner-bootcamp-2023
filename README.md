@@ -7,11 +7,43 @@
   - [Considerations with the Terraform CLI changes](#considerations-with-the-terraform-cli-changes)
   - [Considerations-for-linux-distribution ](#considerations-for-linux-distribution)
   - [Refactoring into Bash Script](#refactoring-into-bash-scripts)
+    - [Shebang Considerations](#shebang-considerations)
+    - [Execution Considerations](#execution-considerations)
+    - [Linux Permissions Considerations(#linux-permissions-considerations)
+- [Gitpod Lifecyle](#gitpod-workspace-lifecyle)
+- [Working with Env Vars](#working-with-env-vars)
+  - [Setting and Unsetting Env Vars(#setting-and-unsetting-env-vars)
+  - [Printing Env Vars](#printing-env-vars)
+  - [Env Vars scope(#env-vars-scope)
+  - [Persisting Env Vars in Gitpod](#persisting-env-vars-in-gitpod)
+- [AWS CLI installation(#aws-cli-installation) 
 - [Terraform Basics](#terraform-basics)
+  - [Terraform Registry](#terraform-registry)
+  - [Terraform Console](#terraform-console)
+  - [Terraform Init](#terraform-init)
+  - [Terraform Plan](#terraform-plan)
+  - [Terraform Apply](#terraform-apply)
+  - [Terraform Destroy](#terraform-destroy)
+- [Terraform Folder Structure](#terraform-folder-structure)
+  - [Terraform Lock Files](#terraform-lock-files)
+  - [Terraform State Files](#terraform-state-files)
+  - [Terraform Directory](#terraform-directory) 
 - [Terraform - AWS : Create a Simple S3 Bucket](#terraform---aws--create-a-simple-s3-bucket)
+  - [Add AWS provider to Terraform](#add-aws-provider-to-terraform)
+  - [Configure and Define the random string resource](#configure-and-define-the-random-string-resource)
+  - [Define S3 resource](#define-s3-resource)
+  - [Execute Terraform Plan](#execute-terraform-plan)
+  - [Execute Terraform Apply](#execute-terraform-apply)
+  - [Confirm the S3 bucket in AWS](#confirm-the-s3-bucket-in-aws)
+  - [Delete the S3 bucket in AWS](#delete-the-s3-bucket-in-aws)
+  - [Confirm the S3 bucket deletion in AWS](#confirm-the-s3-bucket-deletion-in-aws)
+- [Terraform Cloud](#terraform-cloud)Configure Terraform Cloud Backend]
+  - [Configure Terraform Cloud Backend](#configure-terraform-cloud-backend)
+  - [Terraform Init](#terraform-init)
+  - [Terraform Login](#terraform-login)
+  - [Terraform Apply](#terraform-apply)
 
-
-## Semantic Versioning :mage:
+## Semantic Versioninnsg :mage:
 
 This project is going to utilize [semantic versioning](https://semver.org/) for its tagging.
 
@@ -101,19 +133,19 @@ chmod 744 ./bin/install_terraform_cli
 ```
 - [Script Permission](https://en.wikipedia.org/wiki/Chmod)
 
-### Gitpod Workspace Lifecyle (Before,Init, Command)
+## Gitpod Workspace Lifecyle (Before,Init, Command)
 
 Careful consideration should be given using Init in the `.gitpod.yml` because it will not rerun this when existing workspace is started.
 
 - [Gitpod Tasks](https://www.gitpod.io/docs/configure/workspaces/tasks)
 
-### Working with Env Vars
+## Working with Env Vars
 
 All Environment variables (Env Vars) can be listed using the `env` command.
 
 Specific env vars can be listed using grep eg. `env | grep AWS_`
 
-#### Setting and Unsetting Env Vars
+### Setting and Unsetting Env Vars
 
 In the terminal, set environment variable using `export PROJECT_NAME='terraform-bootcamp`
 
@@ -131,17 +163,17 @@ Env Var can be set within the bash script (set before used in the script) as bel
 
     echo $PROJECT_NAME
 ```
-#### Printing Env Vars
+### Printing Env Vars
 
 `echo` is used to print Env Var to console `echo $PROJECT_NAME`
 
-#### Env Vars scope
+### Env Vars scope
 
 Env Var scope is **_limited_ to the terminal window where it is set**
 
 For global persistence of Env Vars (available for all terminal windows), Env Vars should be set in bash profile eg. `.bash_profile`
 
-#### Persisting Env Vars in Gitpod
+### Persisting Env Vars in Gitpod
 
 Env Vars in gitpod can be persisted by storing in Gitpod Secrets Storage
 
@@ -153,7 +185,7 @@ Since above sets Env Var at gitpod level, all workspaces launched will have the 
 
 Env Vars can be set in `.gitpod.yml` as well, but advised to only have non-senstive data
 
-### AWS CLI installation
+## AWS CLI installation
 
 AWS CLI is installed for the project via bash script `./bin/install_aws_cli`
 
@@ -218,15 +250,16 @@ There is option that can be included in the apply to auto approve the confirmati
 - `terraform destroy` will be executed to destroy the resource(s).
 - `terraform destroy --auto-approve` will be executed to destroy the resource(s) without waiting for user confirmation
 
-### Terraform Folder Structure
-#### Terraform Lock Files
+## Terraform Folder Structure
+
+### Terraform Lock Files
 
 `.terraform.lock.hcl` contains the locked versioning for the providers or modules that should be used.
 
 > [!IMPORTANT]
 > The Terraform Lock File should be committed to Version Control System (VCS) eg. GitHub
 
-#### Terraform State Files
+### Terraform State Files
 
 - `.terraform.tfstate` contains information about the current state of the infrastructure.
 
@@ -236,12 +269,12 @@ There is option that can be included in the apply to auto approve the confirmati
 
 - `.terraform.tfstate.backup` is the previous state file state.
 
-#### Terraform Directory
+### Terraform Directory
 - `.terraform` directory contains binaries of terraform providers.
 
 ## Terraform - AWS : Create a Simple S3 Bucket
 
-#### Add AWS provider to Terraform
+### Add AWS provider to Terraform
 
 - [AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
 - Add the following provider to terraform file `main.tf`
@@ -259,14 +292,14 @@ terraform {
 > There can be only one terrform & required_providers section in the `main.tf` file
 > If there is already required_providers section, only add the aws portion to the required_providers section
 
-#### Configure the AWS provider
+### Configure the AWS provider
 AWS credentials can be provided using Env Vars in which case the AWS Configure section can be as below
 ```
 provider "aws" {}
 
 ```
 
-#### Configure and Define the random string resource 
+### Configure and Define the random string resource 
 The random string resource should be configured to match the S3 naming rules of **no upper case character**, **minimun 3 characters length** and **no special character**
 
 ```
@@ -277,7 +310,7 @@ resource "random_string" "bucket_name" {
 }
 ```
 
-#### Define S3 resource
+### Define S3 resource
 Define the S3 resource with bucket name as string generated by random string resource in previous step like below
 ```
 resource "aws_s3_bucket" "example" {
@@ -285,26 +318,25 @@ resource "aws_s3_bucket" "example" {
 }
 ```
 
-#### Execute Terraform Plan
+### Execute Terraform Plan
 Execute the command `terraform plan` to view and confirm the changeset
 
-#### Execute Terraform apply
+### Execute Terraform apply
 Execute the command `terraform apply` or `terraform apply --auto-approve` to create the bucket with the name generated by random string resource
 
-#### Confirm the S3 bucket in AWS
+### Confirm the S3 bucket in AWS
 Navigate to S3 console and confirm the S3 created with the same name as expected
 
-#### Delete the S3 bucket in AWS
+### Delete the S3 bucket in AWS
 Execute command `terraform destroy` or `terraform destroy --auto-appprove` to delete the S3 bucket
 
-#### Confirm the S3 bucket deletion
+### Confirm the S3 bucket deletion
 Navigate to S3 console and confirm the S3 is deleted
 
-### Terraform Cloud - Move local state to remote state
-
+## Terraform Cloud
 The state file in local can be stored in Terraform cloud
 
-#### Configure Terraform Cloud Backend
+### Configure Terraform Cloud Backend
 
 - Register and login to Terraform Cloud
 - Create a new Organization (eg. *beginner-bootcamp*)
@@ -320,13 +352,13 @@ The state file in local can be stored in Terraform cloud
   }
 ```
 
-#### Terraform Init
+### Terraform Init
 
 Execute command `terraform init`
 > [!WARNING]
 > Executing `terraform init` will display warning to login to terraform cloud using `terraform login`
 
-#### Terraform Login
+### Terraform Login
 Execute the command `terraform login`
 
 This will launch bash terminal with below options
@@ -366,7 +398,7 @@ This will launch bash terminal with below options
 > [!NOTE]
 > When providing Env Vars for Terraform Cloud in `main.tf` file, ensure to add **TF_VAR** before the Env Var name eg. *TF_VAR_AWS_ACCESS_KEY_ID*
 
-#### Terraform Apply
+### Terraform Apply
 
 - The resource (S3) will be successfully created, and the Terraform Cloud will have state saved 
 - It will also show the resource(s) created
