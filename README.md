@@ -2,21 +2,21 @@
 
 ## Table Of Content
 
-- [Semantic Versioning](#semantic-versioning-mage)
+- [Semantic Versioning](#semantic-versioning)
 - [Install Terraform CLI](#install-the-terraform-cli)
   - [Considerations with the Terraform CLI changes](#considerations-with-the-terraform-cli-changes)
   - [Considerations-for-linux-distribution ](#considerations-for-linux-distribution)
   - [Refactoring into Bash Script](#refactoring-into-bash-scripts)
     - [Shebang Considerations](#shebang-considerations)
     - [Execution Considerations](#execution-considerations)
-    - [Linux Permissions Considerations(#linux-permissions-considerations)
+    - [Linux Permissions Considerations](#linux-permissions-considerations)
 - [Gitpod Lifecyle](#gitpod-workspace-lifecyle)
 - [Working with Env Vars](#working-with-env-vars)
-  - [Setting and Unsetting Env Vars(#setting-and-unsetting-env-vars)
+  - [Setting and Unsetting Env Vars](#setting-and-unsetting-env-vars)
   - [Printing Env Vars](#printing-env-vars)
-  - [Env Vars scope(#env-vars-scope)
+  - [Env Vars scope](#env-vars-scope)
   - [Persisting Env Vars in Gitpod](#persisting-env-vars-in-gitpod)
-- [AWS CLI installation(#aws-cli-installation) 
+- [AWS CLI installation](#aws-cli-installation) 
 - [Terraform Basics](#terraform-basics)
   - [Terraform Registry](#terraform-registry)
   - [Terraform Console](#terraform-console)
@@ -36,14 +36,14 @@
   - [Execute Terraform Apply](#execute-terraform-apply)
   - [Confirm the S3 bucket in AWS](#confirm-the-s3-bucket-in-aws)
   - [Delete the S3 bucket in AWS](#delete-the-s3-bucket-in-aws)
-  - [Confirm the S3 bucket deletion in AWS](#confirm-the-s3-bucket-deletion-in-aws)
-- [Terraform Cloud](#terraform-cloud)Configure Terraform Cloud Backend]
+  - [Confirm the S3 bucket deletion in AWS](#confirm-the-s3-bucket-deletion)
+- [Terraform Cloud](#terraform-cloud)
   - [Configure Terraform Cloud Backend](#configure-terraform-cloud-backend)
   - [Terraform Init](#terraform-init)
   - [Terraform Login](#terraform-login)
   - [Terraform Apply](#terraform-apply)
 
-## Semantic Versioninnsg :mage:
+## Semantic Versioning
 
 This project is going to utilize [semantic versioning](https://semver.org/) for its tagging.
 
@@ -133,7 +133,7 @@ chmod 744 ./bin/install_terraform_cli
 ```
 - [Script Permission](https://en.wikipedia.org/wiki/Chmod)
 
-## Gitpod Workspace Lifecyle (Before,Init, Command)
+## Gitpod Workspace Lifecyle
 
 Careful consideration should be given using Init in the `.gitpod.yml` because it will not rerun this when existing workspace is started.
 
@@ -185,7 +185,7 @@ Since above sets Env Var at gitpod level, all workspaces launched will have the 
 
 Env Vars can be set in `.gitpod.yml` as well, but advised to only have non-senstive data
 
-## AWS CLI installation
+## AWS CLI Installation
 
 AWS CLI is installed for the project via bash script `./bin/install_aws_cli`
 
