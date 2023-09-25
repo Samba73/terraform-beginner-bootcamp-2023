@@ -1,5 +1,16 @@
 # Terraform Beginner Bootcamp 2023
 
+## Table Of Content
+
+- [Semantic Versioning](#semantic-versioning-mage)
+- [Install Terraform CLI](#install-the-terraform-cli)
+  - [Considerations with the Terraform CLI changes](#considerations-with-the-terraform-cli-changes)
+  - [Considerations-for-linux-distribution ](#considerations-for-linux-distribution)
+  - [Refactoring into Bash Script](#refactoring-into-bash-scripts)
+- [Terraform Basics](#terraform-basics)
+- [Terraform - AWS : Create a Simple S3 Bucket](#terraform---aws--create-a-simple-s3-bucket)
+
+
 ## Semantic Versioning :mage:
 
 This project is going to utilize [semantic versioning](https://semver.org/) for its tagging.
@@ -228,7 +239,7 @@ There is option that can be included in the apply to auto approve the confirmati
 #### Terraform Directory
 - `.terraform` directory contains binaries of terraform providers.
 
-### Terraform - AWS : Create a Simple S3 Bucket
+## Terraform - AWS : Create a Simple S3 Bucket
 
 #### Add AWS provider to Terraform
 
