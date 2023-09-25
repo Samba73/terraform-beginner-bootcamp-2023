@@ -402,3 +402,5 @@ This will launch bash terminal with below options
 
 - The resource (S3) will be successfully created, and the Terraform Cloud will have state saved 
 - It will also show the resource(s) created
+> [!IMPORTANT]
+> The tedious `terraform login` process can be simplified by a bash script [bin/generate_tfrc_credentials](bin/generate_tfrc_credentials)
