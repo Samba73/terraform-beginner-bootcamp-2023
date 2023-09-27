@@ -46,9 +46,7 @@ In Terraform, there are 3 kinds of variables
     nullable                            # Specify if the value can be null in the module
   }
   ```
-  - [Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/types)
-    > [!NOTE]
-    > mixture of `type keywords` and `type constructors`
+  - [Type and Values](https://developer.hashicorp.com/terraform/language/expressions/types)
 
     | Type                               | Description                                                     |
     |------------------------------------|-----------------------------------------------------------------|
@@ -61,8 +59,12 @@ In Terraform, there are 3 kinds of variables
     | **map(type)**                       | A group of values identified by named labels, e.g., `{name: 'bob', age=28}`         |
     | **null**                            | Absence or omission. The default value is used in conditional expressions            |
 
-> [!NOTE]
-> The keyword `any` may be used to indicate that any type is acceptable
+    > [!NOTE]
+    > The difference between list and tuple is that list is collection type (similar types grouped together) and tuple is structural type(distinct types grouped together)
+    > [!NOTE]
+    > The keyword `any` may be used to indicate that any type is acceptable
+    > [!NOTE]
+    > `optional` modifier is used in object type constraint, to mark the attribute as optional
 
 #### Using var flag in command execution
 
@@ -70,6 +72,9 @@ In Terraform, there are 3 kinds of variables
 
 #### Using var-file flag
 
+To set lot of variables, it is covenient to declare them in variable definition file(ending with .tfvars or .tfvars.json) and specify that file-name in the command-line
+
+`terraform apply -var-file="testing-tfvars"`
 
 #### Using terrform.tfvars
 
@@ -77,7 +82,15 @@ The default file used to load input variables. The reference in the `main.tf` is
 
 #### Using auto-tfvars
 
+Terraform supports numbers of variable definition file types
+one of them is `auto-tfvars`
+
 #### Order of Terraform Variables
+
+Terraform load variables in following order
+
+![variable_precedence drawio ](https://github.com/Samba73/terraform-beginner-bootcamp-2023/assets/90577515/732603b6-c4be-43ac-af86-5b4eaed35cd8)
+
 
 ## Moving state from Cloud to Local
 
