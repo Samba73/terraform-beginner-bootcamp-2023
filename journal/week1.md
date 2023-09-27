@@ -20,10 +20,12 @@ Project_ROOT
 
 ### Terraform Cloud Variables
 
-In Terraform, there are 2 kinds of variables
+In Terraform, there are 3 kinds of variables
+
     - Environment Variables # eg. Provider (AWS) Env Vars (that is set in bash terminal)
     - Terraform Variables   # eg. input variables (that is set in tfvars file)
-
+    - Expression Variables  # eg. conditional expression used to indirectly represent a value in an expression
+    
 > [!NOTE]
 > These variables are set as **sensitive** or **HCL**, depending on variable type
 > Sensitive - not visible in UI
@@ -31,7 +33,29 @@ In Terraform, there are 2 kinds of variables
 
 ### Loading Terraform Input variables
 
-- [Terraform Input Variables](https://developer.hashicorp.com/terraform/language/values/variables#environment-variables)
+- [Terraform Input Variables](https://developer.hashicorp.com/terraform/language/values/variables)
+
+  Format is
+  ```
+  variable <variable_name> {
+    description                         # Text to describe the varaible
+    type                                # What value types are accepted for the variable
+    default                             # Default value which then makes the variable optional
+    validation                          # A block to define validation rule
+    sensible                            # Limit TF UI output when the variable is used in configuration
+    nullable                            # Specify if the value can be null in the module
+  }
+ ```
+
+  Type Constraints
+  - string
+  - number
+  - bool
+  - list(<type>)    # list(string)/ list(object)/ list(
+  - set(<type>)     #
+  - map(<type>)     #
+  - object({<ATTRB_NAME>=<type>,...})
+  - tuple([<type>,...])
 
 #### Using var flag in command execution
 
