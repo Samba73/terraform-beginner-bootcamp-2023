@@ -46,20 +46,20 @@ In Terraform, there are 3 kinds of variables
     nullable                            # Specify if the value can be null in the module
   }
   ```
-    [Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/types)
+  - [Type Constraints](https://developer.hashicorp.com/terraform/language/expressions/types)
     > [!NOTE]
     > mixture of `type keywords` and `type constructors`
 
-| Type                               | Description                                                     |
-|------------------------------------|-----------------------------------------------------------------|
-| **string**                          | Sequence of Unicode characters representing some text, e.g., `hello`                 |
-| **number**                          | Numeric value. Can represent both whole numbers and fractions, e.g., `12` and `6.25` |
-| **bool**                            | A boolean value of either `true` or `false`. `Bool` values can be used in conditional logic |
-| **list/tuple(string)**              | Sequence of values whose elements are identified by whole numbers starting from `0`, e.g., `['us-east-1', 'us-west-1']` |
-| **list/tuple(object)**              | Sequence of objects, e.g., `list(object({name=string, age=number}))`                 |
-| **set(type)**                       | A collection of unique values that do not have any ordering or secondary identifiers  |
-| **map(type)**                       | A group of values identified by named labels, e.g., `{name: 'bob', age=28}`         |
-| **null**                            | Absence or omission. The default value is used in conditional expressions            |
+    | Type                               | Description                                                     |
+    |------------------------------------|-----------------------------------------------------------------|
+    | **string**                          | Sequence of Unicode characters representing some text, e.g., `hello`                 |
+    | **number**                          | Numeric value. Can represent both whole numbers and fractions, e.g., `12` and `6.25` |
+    | **bool**                            | A boolean value of either `true` or `false`. `Bool` values can be used in conditional logic |
+    | **list/tuple(string)**              | Sequence of values whose elements are identified by whole numbers starting from `0`, e.g., `['us-east-1', 'us-west-1']` |
+    | **list/tuple(object)**              | Sequence of objects, e.g., `list(object({name=string, age=number}))`                 |
+    | **set(type)**                       | A collection of unique values that do not have any ordering or secondary identifiers  |
+    | **map(type)**                       | A group of values identified by named labels, e.g., `{name: 'bob', age=28}`         |
+    | **null**                            | Absence or omission. The default value is used in conditional expressions            |
 
 > [!NOTE]
 > The keyword `any` may be used to indicate that any type is acceptable
