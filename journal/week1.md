@@ -86,3 +86,31 @@ Once these files are removed, can be created with `terraform init` command execu
  ### Execute `terraform init` command
 
  Execute the command to enable local state file preservance
+
+## Handle Configuration Drift
+
+When the Terraform Cloud is not enabled, possibilities of loosing the  state file are high. It will be challenging to recover the resources.
+
+There are ways to import the resources and manage
+
+[Terraform Import](https://developer.hashicorp.com/terraform/cli/import#import)
+
+- CLI Terraform Import
+- Terraform import block
+
+### Fix missing state file with CLI Terraform Import
+
+We have S3 created, whose state file is missing. We can do the resource import to recover the s3 resource
+
+- [Terraform - S3 Import](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#import)
+
+```
+terraform import aws_s3_bucket.bucket bucket-name
+```
+
+
+### Fix manual configuration
+
+There is possibilities that the resource(s) would be deleted or cloud resource(s) are modified through clickops.
+
+The state file comparison by terraform enables to put the infrastructure back into original expected state by running `terraform plan`
