@@ -158,3 +158,140 @@ terraform import aws_s3_bucket.bucket bucket-name
 There is possibilities that the resource(s) would be deleted or cloud resource(s) are modified through clickops.
 
 The state file comparison by terraform enables to put the infrastructure back into original expected state by running `terraform plan`
+
+## Terraform Modules
+
+### Terraform Module Structure
+
+`modules` directory is created to create nested module
+
+![modules]("./assets/modules.png")
+
+Add the following files to the module `terrahouse_aws`
+- `main.tf`
+- `outputs.tf`
+- `variables.tf`
+- `README.md`
+- `LICENSE`
+
+### Restructure the folder for module
+
+#### `main.tf` in module
+
+Copy the provider from the root module `providers.tf` into module's `main.tf` along with resource information in `main.tf` from root module
+
+The `main.tf` in the module `terrahouse_aws` will look like
+```tf
+terraform {
+#   cloud {
+#     organization = "beginner-bootcamp"
+#     workspaces {
+#       name = "terra-house-1"
+#     }
+#   }
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.17.0"
+    }
+  }
+}
+ # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+ # Bucket Naming Rules
+    #https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html?icmpid=docs_amazons3_console
+resource "aws_s3_bucket" "website_bucket" {
+  bucket = var.s3_bucket_name
+
+  tags = {
+    "Created_By" = var.user_uuid
+  }
+}
+```
+#### `outputs.tf` in module
+
+The `outputs.tf` in the root module will not have access to the resource defined inside module. so we need to move the content of `outputs.tf` from root module to module `terrahouse_aws`
+```tf
+output "s3_bucket_name" {
+  value = aws_s3_bucket.website_bucket
+}
+```
+#### `variables.tf` in module
+
+The module need variables declared within the module, hence we need to move the content of `variables.tf` from root module to module `terrahouse_aws`
+```tf
+variable "user_uuid" {
+    description     = "The UUID of user who created to s3 bucket"
+    type            = string
+    validation {
+      condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$", var.user_uuid))
+      error_message = "The value for variable user_uuid is missing / not valid"
+    }
+}
+variable "s3_bucket_name" {
+  description = "Name of the S3 bucket"
+  type        = string
+
+  validation {
+    condition     = (can(regex("^[a-z0-9.-]{3,63}$", var.s3_bucket_name)) && 
+                    length(var.s3_bucket_name) >=3 && length(var.s3_bucket_name) <=63)
+    error_message = "S3 bucket name must be between 3 and 63 characters, contain only lowercase letters, numbers, hyphens, and periods, and not start or end with a hyphen or period. IP address format is not allowed."
+  }
+}
+```
+> [!IMPORTANT]
+> The `variables.tf` in root module cannot be left blank. This need to have at least the variable declaration for the variables used with the resource
+
+### Restructure the root module to call the module `terrahouse_aws` 
+
+The `main.tf` file in entry point for terraform and this file in root module need to be updated to call the module as below
+```tf
+module "terrahouse_aws" {
+  source         = "./modules/terrahouse_aws"
+  user_uuid      = var.user_uuid  
+  s3_bucket_name = var.s3_bucket_name
+
+  }
+```
+#### Passing input variable to module from root module
+Pass the input variable as below
+
+```tf
+module "terrahouse_aws" {
+  source         = "./modules/terrahouse_aws"
+  user_uuid      = var.user_uuid  
+  s3_bucket_name = var.s3_bucket_name
+
+  }
+```
+>[!NOTE]
+>The module still has to declare the variables in its own `variables.tf` file
+
+#### Module Sources
+
+Using the source key, modules can be imported from various places eg:
+- locally
+- Github
+- Terraform Registry
+
+```tf
+module "terrahouse_aws" {
+  source = "./modules/terrahouse_aws"
+}
+```
+- [Modules Sources](https://developer.hashicorp.com/terraform/language/modules/sources)
+
+#### `outputs.tf` in module
+
+The immediate output from module will have reference to actual resource while the root module will have to refer to module output. Both the `outputs.tf` will need to be modified as below
+- `outputs.tf` in module
+```tf
+output "s3_bucket_name" {
+  value = aws_s3_bucket.website_bucket
+}
+```
+- `outputs.tf` in root module
+```tf
+output "s3_bucket_name" {
+  value = module.terrahouse_aws.s3_bucket_name
+}
+```

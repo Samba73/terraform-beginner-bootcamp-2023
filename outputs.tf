@@ -1,3 +1,3 @@
-output "random_bucket_name" {
-  value = aws_s3_bucket.website_bucket
+output "s3_bucket_name" {
+  value = module.terrahouse_aws.s3_bucket_name
 }
