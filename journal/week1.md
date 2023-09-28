@@ -165,7 +165,8 @@ The state file comparison by terraform enables to put the infrastructure back in
 
 `modules` directory is created to create nested module
 
-![modules]("./assets/modules.png")
+<img width="332" alt="Screenshot 2023-09-28 at 6 00 01 PM" src="https://github.com/Samba73/terraform-beginner-bootcamp-2023/assets/90577515/7e10be4d-424f-42ea-828b-4ee95883fbaa">
+
 
 Add the following files to the module `terrahouse_aws`
 - `main.tf`
