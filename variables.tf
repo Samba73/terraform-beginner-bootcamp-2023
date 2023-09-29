@@ -13,3 +13,7 @@ variable "index_html_path" {
 variable "error_html_path" {
   description = "Path to error.html file for static website"
 }
+variable "content_version" {
+  description = "A positive integer starting from 1"
+  type        = number
+}
