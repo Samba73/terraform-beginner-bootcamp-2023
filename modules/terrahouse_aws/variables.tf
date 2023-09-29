@@ -42,3 +42,9 @@ variable "content_version" {
     error_message = "The value must be a positive integer starting from 1."
   }
 }
+
+variable "assets_path" {
+  description = "Path to a file"
+  type        = string
+}
+

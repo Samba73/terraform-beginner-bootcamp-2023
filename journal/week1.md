@@ -732,3 +732,38 @@ There are 2 types of provisioner
     EOT
   }
 }
+## Upload Assets using For..Each
+
+Uploading multiple assets (files in folder) need loop to go through each file and upload.
+`for_each` is used to scan through the files and upload to s3 resource
+[Terraform For_Each](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each)
+
+Before using `for_each`, tried terraform path filesystem to check the files in folder and reuse it with `for_each`
+
+### using Terraform console for filesystem
+
+[Terraform Path](https://developer.hashicorp.com/terraform/language/expressions/references)
+
+`path.root` gives filesystem path of the root module of the configuration
+`fileset` function allows to find the files in a folder
+`fileset("${path.root}/assets","*.{jpg,png,gif})` - allows the list files with jpg,png and gif extension in the **assets** folder under the root module.
+This is used with `for_each` to upload each file in folder to s3
+
+### Upload assets to s3
+
+Create a new resource `aws_s3_object` to upload the assets
+```
+resource "aws_s3_object" "upload_assets" {
+  for_each = fileset(var.assets_path,"*.{jpg,png,gif}")
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "assets/${each.key}"
+  source = "${var.assets_path}/${each.key}"
+  etag = filemd5("${var.assets_path}${each.key}")
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output]
+    ignore_changes = [etag]
+  }
+}
+```
+### Update the page to have the assets display
+Update the `index.html` to have the images from the prefix `assets` to display in the webpage
