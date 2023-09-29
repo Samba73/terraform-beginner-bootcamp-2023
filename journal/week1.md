@@ -599,3 +599,71 @@ resource "aws_s3_object" "error_html" {
   content_type  = "text/html"
   etag          = filemd5(var.error_html_path)
 }
+```
+## Setup Content Version
+
+### Changing Lifecycle of resources
+
+In the previous (issue # 29) the `etag = filemd5(var.index_html_path)` set the changes to be applied whenever the content of the resource is changed.
+This is not intended usage. Instead of every change to the content of the resource to be applied, this can be controlled through variable (content_version).
+
+- [Terraform Lifecycle](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle)
+
+Update the lifecyle as below to avoid `etag` changes
+
+```
+lifecyle {
+    ignore_changes=[etag]
+}
+```
+### Create `terraform_data` resource 
+
+Plain data values such as Local Values and Input Variables don't have any side-effects to plan against and so they aren't valid in replace_triggered_by. You can use terraform_data's behavior of planning an action each time input changes to indirectly use a plain value to trigger replacement.
+
+- [Terraform Data](https://developer.hashicorp.com/terraform/language/resources/terraform-data)
+
+  ```
+  resource "terraform_data" "content_version" {
+  input = var.content_version
+}
+
+### Create variable to control resource content changes to be applied
+Create variable in module as below
+```
+variable "content_version" {
+  description = "A positive integer starting from 1"
+  type        = number
+
+  validation {
+    condition     = var.content_version > 0 && floor(var.content_version) == var.content_version
+    error_message = "The value must be a positive integer starting from 1."
+  }
+}
+```
+Make the required changes in following files
+- `variables.tf` in root module
+- `terraform.tfvars` in root module to declare and assign value to variable
+- `main.tf` in root module to pass the variable
+
+### Reference to `terraform_data` in resource to trigger the changes being applied
+ Refer to `terraform_data` output in resource section to enable triggering the changes to be applied when there is change to the declared variable `content_version`
+
+ ```
+resource "aws_s3_object" "index_html" {
+  bucket        = aws_s3_bucket.website_bucket.bucket
+  key           = "index.html"
+  source        = var.index_html_path
+  content_type  = "text/html"
+  etag          = filemd5(var.index_html_path)
+  lifecycle {
+    replace_triggered_by = [terraform_data.content_version.output]
+    ignore_changes = [etag]
+  }
+}
+resource "aws_s3_object" "error_html" {
+  bucket        = aws_s3_bucket.website_bucket.bucket
+  key           = "error.html"
+  source        = var.error_html_path
+  content_type  = "text/html"
+  etag          = filemd5(var.error_html_path)
+}
