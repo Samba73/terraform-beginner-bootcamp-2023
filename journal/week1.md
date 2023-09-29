@@ -379,3 +379,155 @@ resource "aws_s3_object" "index_html" {
   key    = "index.html"
   source = "${path.root}/public/index.html"
 }
+
+## CloudFront (CDN) Implementation
+
+CloudFront (CDN) is Content Delivery Network that uses edge locations to reduce latency and provide content to end users.
+S3 can be source for CDN and S3 (through s3 bucket policy) can have Origin Access Control to allow only CF (CDN) to have access to its content for delivery
+
+### Restructure the folder
+
+with more resources added `main.tf` in module can get bulky, so the storage and cdn can be separated into its own `.tf` file
+
+Create `resource-storage.tf` for s3 declaraltion and `resource-cdn.tf` for clodoufront distribution
+
+#### `resource-storage.tf` updates
+Move the s3 resource declaration from `main.tf` in module to `resource-storage.tf`
+
+### Create cloudfront distribution
+[Terraform CF Distribution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution#domain_name)
+
+#### Update `resource-cdn.tf` file
+
+The cloudfront distribution resource need to be created. Following is the format
+```
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
+    origin_id                = local.s3_origin_id
+  }
+
+  enabled                    = true
+  is_ipv6_enabled            = true
+  comment                    = "Static Website Hosting for ${var.s3_bucket_name}"
+  default_root_object        = "index.html"
+
+  #aliases = ["mysite.example.com", "yoursite.example.com"]
+
+  default_cache_behavior {
+    allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = local.s3_origin_id
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "allow-all"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+  }
+
+  price_class = "PriceClass_200"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+      locations        = []
+    }
+  }
+
+  tags = {
+    userUUID = var.user_uuid
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+}
+```
+#### Update `resource-cdn.tf` to add origin access control (OAC)
+Origin Access Control enables access control to s3 bucket and its content. When CloudFront is used, it can be set as the only service that can access s3 through s3 bucket policy
+
+```
+resource "aws_cloudfront_origin_access_control" "default" {
+  name                              = "OAC ${var.s3_bucket_name}"
+  description                       = "Origin Access Control for Static Website Hosting ${var.s3_bucket_name}"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+```
+#### Terraform Locals
+
+Locals allows us to define local variables.
+It can be very useful when we need transform data into another format and have referenced a varaible.
+
+```tf
+locals {
+  s3_origin_id = "MyS3Origin"
+}
+```
+[Local Values](https://developer.hashicorp.com/terraform/language/values/locals)
+
+### Add S3 Bucket Policy
+S3 bucket policy need to be added that will enable to OAC to be activated. In the policy only cloudfront service will be allowed as principal to access the s3 and its content
+```
+resource "aws_s3_bucket_policy" "cf_bucket_policy" {
+  bucket = aws_s3_bucket.website_bucket.id
+  policy = jsonencode(
+    {
+    "Version": "2012-10-17",
+    "Statement": {
+        "Sid": "AllowCloudFrontServicePrincipalReadOnly",
+        "Effect": "Allow",
+        "Principal": {
+            "Service": "cloudfront.amazonaws.com"
+        },
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::${aws_s3_bucket.website_bucket.id}/*",
+        "Condition": {
+            "StringEquals": {
+                # "AWS:SourceArn": "arn:aws:cloudfront::<AWS account ID>:distribution/<CloudFront distribution ID>"
+                "AWS:SourceArn": aws_cloudfront_distribution.s3_distribution.arn
+            }
+        }
+    }
+}
+  )
+}
+```
+>[!NOTE]
+>The `SourceArn` above in the condition for s3 bucket policy can also indirectly assign the CDN distribution through `"AWS:SourceArn": "arn:aws:cloudfront::<AWS account ID>:distribution/<CloudFront distribution ID>"` but we need to pass the AWS AccountID and CDN  Distribution id
+
+#### Terraform Data Sources
+
+This allows use to source data from cloud resources.
+
+This is useful when we want to reference cloud resources without importing them.
+
+```tf
+data "aws_caller_identity" "current" {}
+
+output "account_id" {
+  value = data.aws_caller_identity.current.account_id
+}
+```
+[Data Sources](https://developer.hashicorp.com/terraform/language/data-sources)
+
+#### Working with JSON for s3 bucket policy
+
+jsonencode is used to create the json policy inline in the hcl.
+
+```tf
+> jsonencode({"hello"="world"})
+{"hello":"world"}
+```
+
+[jsonencode](https://developer.hashicorp.com/terraform/language/functions/jsonencode)
