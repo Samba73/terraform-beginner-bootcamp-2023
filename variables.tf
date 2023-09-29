@@ -17,3 +17,7 @@ variable "content_version" {
   description = "A positive integer starting from 1"
   type        = number
 }
+variable "assets_path" {
+  description = "Path to a file"
+  type        = string
+}
