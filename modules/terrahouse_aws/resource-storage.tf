@@ -55,7 +55,7 @@ resource "aws_s3_bucket_policy" "cf_bucket_policy" {
         "Resource": "arn:aws:s3:::${aws_s3_bucket.website_bucket.id}/*",
         "Condition": {
             "StringEquals": {
-                # "AWS:SourceArn": "arn:aws:cloudfront::<AWS account ID>:distribution/<CloudFront distribution ID>"
+                # "AWS:SourceArn": "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.s3_distribution.id}"
                 "AWS:SourceArn": aws_cloudfront_distribution.s3_distribution.arn
             }
         }
