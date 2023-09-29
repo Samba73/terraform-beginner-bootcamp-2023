@@ -667,3 +667,68 @@ resource "aws_s3_object" "error_html" {
   content_type  = "text/html"
   etag          = filemd5(var.error_html_path)
 }
+```
+## Invalidate CF distribution through TF
+
+### Provisioners in TF
+Provisioners in TF allow to execute commands on compute instances eg. AWS CLI command.
+This practice is not recommended by TF unless this is last resort. It is advised to use any Configuration Management tool like Ansible
+[Provisioners](https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax)
+
+#### Provisioner types
+There are 2 types of provisioner 
+- `Local-exec`
+    - this will execute the command on the machine running the TF commands eg. plan, apply
+    ```tf
+    resource "aws_instance" "web" {
+      # ...
+    
+      provisioner "local-exec" {
+        command = "echo The server's IP address is ${self.private_ip}"
+      }
+    }
+    ```
+    
+    https://developer.hashicorp.com/terraform/language/resources/provisioners/local-exec
+
+- `Remote-exec`
+    - this will execute commands on a machine that is the target. This require credentials such as ssh to connect to compute instance
+  ```tf
+    resource "aws_instance" "web" {
+      # ...
+    
+      # Establishes connection to be used by all
+      # generic remote provisioners (i.e. file/remote-exec)
+      connection {
+        type     = "ssh"
+        user     = "root"
+        password = var.root_password
+        host     = self.public_ip
+      }
+    
+      provisioner "remote-exec" {
+        inline = [
+          "puppet apply",
+          "consul join ${aws_instance.web.private_ip}",
+        ]
+      }
+    }
+    ```
+    https://developer.hashicorp.com/terraform/language/resources/provisioners/remote-exec
+
+  ### Add the invalidation to CF resource in `resource-cdn.tf`
+
+  Using the `terraform_data` and provisioner `Local-exec` add the following lines to the `resource-cdn.tf` file
+  ```
+  resource "terraform_data" "invalid_cache" {
+  triggers_replace =  terraform_data.content_version.output
+  
+
+  provisioner "local-exec" {
+    command = <<EOT
+    aws cloudfront create-invalidation \
+    --distribution-id ${aws_cloudfront_distribution.s3_distribution.id} \
+    --paths '/*'
+    EOT
+  }
+}
