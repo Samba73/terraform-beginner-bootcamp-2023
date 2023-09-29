@@ -2,3 +2,4 @@ user_uuid       ="fc8f6e72-e3cd-490f-b167-5286496d107b"
 s3_bucket_name  ="samba07-tf-29sep2023-issue27"
 index_html_path ="/workspace/terraform-beginner-bootcamp-2023/public/index.html"
 error_html_path ="/workspace/terraform-beginner-bootcamp-2023/public/error.html"
+content_version =1

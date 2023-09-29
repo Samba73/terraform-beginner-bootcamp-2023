@@ -32,3 +32,13 @@ variable "error_html_path" {
     error_message = "The specified error.html file does not exists..."
   }
 }
+
+variable "content_version" {
+  description = "A positive integer starting from 1"
+  type        = number
+
+  validation {
+    condition     = var.content_version > 0 && floor(var.content_version) == var.content_version
+    error_message = "The value must be a positive integer starting from 1."
+  }
+}
