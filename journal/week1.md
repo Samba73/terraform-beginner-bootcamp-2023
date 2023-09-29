@@ -296,3 +296,86 @@ output "s3_bucket_name" {
   value = module.terrahouse_aws.s3_bucket_name
 }
 ```
+
+## Static Website Hosting
+
+>[!NOTE]
+>Considerations when using ChatGPT to write Terraform
+>LLMs might give old exampled as they are not trained on latest version of details
+
+>[!IMPORTANT]
+>Always refer to documentation for example code
+
+### Update s3 configuration for static website hosting
+
+Add the following resource to module `main.tf` to enable s3 for static website hosting.
+This will enable the s3 for static website hosting, the configuration index.html and error.html added for index and error document
+```
+resource "aws_s3_bucket_website_configuration" "website_configuration" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+}
+```
+
+### Upload `index.html` and `error.html` in s3 bucket
+Upload `index.html` and `error.html` to the created resource s3 bucket.
+Add the following code to module `main.tf`
+```
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html"
+  source = var.index_html_path
+  etag = filemd5(var.index_html_path)
+}
+```
+```
+resource "aws_s3_object" "error_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "error.html"
+  source = var.error_html_path
+  etag = filemd5(var.error_html_path)
+}
+```
+#### Working with Files in Terraform
+
+We create folder structure to store these files in the root path `./public/index.html` and `./public/error.html`
+The path to these files can be provided as inputs to terraform. We can validate the existence of these files in the path to ensure handling error situation where files are missing
+
+#### Fileexists function
+
+This is a built in terraform function to check the existance of a file.
+
+```tf
+condition = fileexists(var.error_html_filepath)
+```
+
+https://developer.hashicorp.com/terraform/language/functions/fileexists
+
+#### Filemd5
+The terraform will only compare the resource state and update the resource in the provider accordingly.
+If there is change to the files (objects), then the state comparison by TF will not be identifed.
+To ensure that file changes are captured in state comparison, etag can be used.
+etag with fildemd5 function provided by TF will generate new etag which will be compared between states and updated in provider resource
+
+https://developer.hashicorp.com/terraform/language/functions/filemd5
+
+#### Path Variable
+
+In terraform there is a special variable called `path` that allows us to reference local paths:
+- path.module = get the path for the current module
+- path.root = get the path for the root module
+[Special Path Variable](https://developer.hashicorp.com/terraform/language/expressions/references#filesystem-and-workspace-info)
+
+
+resource "aws_s3_object" "index_html" {
+  bucket = aws_s3_bucket.website_bucket.bucket
+  key    = "index.html"
+  source = "${path.root}/public/index.html"
+}
