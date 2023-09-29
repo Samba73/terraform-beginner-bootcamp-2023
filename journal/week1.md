@@ -303,7 +303,7 @@ output "s3_bucket_name" {
 >Considerations when using ChatGPT to write Terraform
 >LLMs might give old exampled as they are not trained on latest version of details
 
-<[!IMPORTANT]
+>[!IMPORTANT]
 >Always refer to documentation for example code
 
 ### Update s3 configuration for static website hosting
