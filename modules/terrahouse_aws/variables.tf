@@ -16,3 +16,19 @@ variable "s3_bucket_name" {
     error_message = "S3 bucket name must be between 3 and 63 characters, contain only lowercase letters, numbers, hyphens, and periods, and not start or end with a hyphen or period. IP address format is not allowed."
   }
 }
+
+variable "index_html_path" {
+  description = "Path to index.html file for static website"
+  validation {
+    condition = fileexists(var.index_html_path)
+    error_message = "The specified index.html file does not exists..."
+  }
+}
+
+variable "error_html_path" {
+  description = "Path to error.html file for static website"
+  validation {
+    condition = fileexists(var.error_html_path)
+    error_message = "The specified error.html file does not exists..."
+  }
+}
