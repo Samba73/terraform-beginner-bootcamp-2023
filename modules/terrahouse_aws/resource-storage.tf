@@ -54,13 +54,12 @@ resource "aws_s3_bucket_policy" "cf_bucket_policy" {
         },
         "Action": "s3:GetObject",
         "Resource": "arn:aws:s3:::${aws_s3_bucket.website_bucket.id}/*",
- /*
         "Condition": {
             "StringEquals": {
                 # "AWS:SourceArn": "arn:aws:cloudfront::<AWS account ID>:distribution/<CloudFront distribution ID>"
                 "AWS:SourceArn": aws_cloudfront_distribution.s3_distribution.arn
             }
-        } */
+        } 
     }
 }
   )
