@@ -3,22 +3,52 @@ require 'json'
 require 'pry'
 require 'active_model'
 
+# we will mock having a state or database for this development server
+# by setting a global variable. You would never use a global variable 
+# in production server.
 $home = {}
 
-class Home
-  include ActiveModel::Validations
-  attr_accessor :town, :name, :description, :domain_name, :content_version
+# This is a ruby class that includes validations from ActiveRecord.
+# This will represent our Home resources as a ruby object.
 
-  validates :town, presence: true
+class Home
+  # ActiveModel is part of Ruby on Rails.
+  # it is used as an ORM. It has a module within
+  # ActiveModel that provides validations.
+  # The production Terratowns server is rails and uses
+  # very similar and in most cases identical validation
+  # https://guides.rubyonrails.org/active_model_basics.html
+  # https://guides.rubyonrails.org/active_record_validations.html
+
+  include ActiveModel::Validations
+  # create some virtual attributes to stored on this object
+  # This will set a getter and setter
+  # eg. 
+  # home = new Home()
+  # home.town = 'hello' # setter
+  # home.town() # getter
+
+  attr_accessor :town, :name, :description, :domain_name, :content_version
+  # pesence: true indicates required
+  # inclusion with list indicates allowed valies for town
+  validates :town, presence: true, inclusion: { in: [
+    'melomaniac-mansion','cooker-cove',
+    'video-valley','the-nomad-pad',
+    'gamers-grotto'
+  ]
+  }
+  # visible to all users
   validates :name, presence: true
+  # visible to all users
   validates :description, presence: true
+  # This would be cloudfront, this validates that domain name contains cloudfront.net in it
   validates :domain_name, 
     format: { with: /\.cloudfront\.net\z/, message: "domain must be from .cloudfront.net" }
     # uniqueness: true, 
-
+  # validates that content_version is integer
   validates :content_version, numericality: { only_integer: true }
 end
-
+# Class from Sinatra::Base is extended to turn into generic class utilize sinatra web-framework
 class TerraTownsMockServer < Sinatra::Base
 
   def error code, message
