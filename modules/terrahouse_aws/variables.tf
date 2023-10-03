@@ -19,16 +19,16 @@ variable "s3_bucket_name" {
 
 variable "index_html_path" {
   description = "Path to index.html file for static website"
-  validation {
-    condition = fileexists(var.index_html_path)
-    error_message = "The specified index.html file does not exists..."
-  }
+  # validation {
+  #   condition = fileexists(var.index_html_path)
+  #   error_message = "The specified index.html file does not exists..."
+  # }
 }
 
 variable "error_html_path" {
   description = "Path to error.html file for static website"
-  validation {
-    condition = fileexists(var.error_html_path)
-    error_message = "The specified error.html file does not exists..."
-  }
+  # validation {
+  #   condition = fileexists(var.error_html_path)
+  #   error_message = "The specified error.html file does not exists..."
+  # }
 }

@@ -7,6 +7,7 @@ resource "aws_s3_bucket" "website_bucket" {
 
   tags = {
     "Created_By" = var.user_uuid
+    "Hello"      = "world"
   }
 }
 
@@ -27,14 +28,14 @@ resource "aws_s3_object" "index_html" {
   key           = "index.html"
   source        = var.index_html_path
   content_type  = "text/html"
-  etag          = filemd5(var.index_html_path)
+  #etag          = filemd5(var.index_html_path)
 }
 resource "aws_s3_object" "error_html" {
   bucket        = aws_s3_bucket.website_bucket.bucket
   key           = "error.html"
   source        = var.error_html_path
   content_type  = "text/html"
-  etag          = filemd5(var.error_html_path)
+  #etag          = filemd5(var.error_html_path)
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
@@ -53,12 +54,13 @@ resource "aws_s3_bucket_policy" "cf_bucket_policy" {
         },
         "Action": "s3:GetObject",
         "Resource": "arn:aws:s3:::${aws_s3_bucket.website_bucket.id}/*",
+ /*
         "Condition": {
             "StringEquals": {
                 # "AWS:SourceArn": "arn:aws:cloudfront::<AWS account ID>:distribution/<CloudFront distribution ID>"
                 "AWS:SourceArn": aws_cloudfront_distribution.s3_distribution.arn
             }
-        }
+        } */
     }
 }
   )
