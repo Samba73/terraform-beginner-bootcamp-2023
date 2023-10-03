@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "website_bucket" {
 
   tags = {
     "Created_By" = var.user_uuid
-    "Hello"      = "world-2"
+    "Hello"      = "world-3"
   }
 }
 
