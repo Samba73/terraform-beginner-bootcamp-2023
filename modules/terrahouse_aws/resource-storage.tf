@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "website_bucket" {
 
   tags = {
     "Created_By" = var.user_uuid
-    "Hello"      = "world-31"
+    "Execution"      = "Auto Apply in Remote"
   }
 }
 
