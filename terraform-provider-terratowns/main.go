@@ -5,10 +5,13 @@ package main
 // multiple imports can be grouped inside brackets with each import in a line
 import (
 	"log"
-
 	"fmt"
+	"bytes"
 	"regexp"
 	"context"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
@@ -87,55 +90,62 @@ func configure(p *schema.Provider) schema.ConfigureContextFunc {
 
 
 func resourceHome() *schema.Resource {
-	return &schema.Resource{
-		Create: resourceHomeCreate,
-		Read: resourceHomeRead,
-		Update: resourceHomeUpdate,
-		Delete: resourceHomeDelete,
-
+	log.Print("Resource:start")
+	resource := &schema.Resource{
+		CreateContext: resourceHomeCreate,
+		ReadContext: resourceHomeRead,
+		UpdateContext: resourceHomeUpdate,
+		DeleteContext: resourceHomeDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "Name of the Terra Home",
+				Description: "Name of home",
 			},
 			"description": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "Description of the Terra Home",
-
+				Description: "Description of home",
 			},
-
 			"domain_name": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "AWS Cloufront domain name",
 				ValidateFunc: validateCloudFrontDomainName,
+				Description: "Domain name of home eg. *.cloudfront.net",
 			},
 			"town": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "The Town type",
 				ValidateFunc: validateTown,
+				Description: "The town to which the home will belong to",
 			},
 			"content_version": {
 				Type: schema.TypeInt,
 				Required: true,
-
-//				computed: true,
-
-				ConflictsWith: []string{"content_version_increment"},
-			},
-			"content_version_increment": {
-				Type: schema.TypeBool,
-				Default: true,
-				Optional: true,
-
-				ConflictsWith: []string{"content_version"},
-
+				Description: "The content version of the home",
 			},
 		},
 	}
+	log.Print("Resource:start")
+	return resource
+}
+
+
+func validateTown(v interface{}, t string) (ws []string, errors []error){
+	value := v.(string)
+
+	validTowns := map[string]bool {
+		"melomaniac-mansion": true,
+        "cooker-cove":        true,
+        "video-valley":       true,
+        "the-nomad-pad":      true,
+        "gamers-grotto":      true,
+	}
+
+	if !validTowns[value] {
+		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
+	}
+	return
 }
 
 
@@ -170,7 +180,6 @@ func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors 
 }
 
 
-
 func validateUUID(v interface{}, s string) (ws []string, errors []error){
 	log.Print("validateUUID: start")
 
@@ -185,19 +194,86 @@ func validateUUID(v interface{}, s string) (ws []string, errors []error){
 	log.Print("validateUUID: end")
 	return
 }
-func resourceHomeCreate(d *schema.ResourceData, m interface{}) error {
+
+func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+	log.Print("resourceHomeCreate: start")
+	var diags diag.Diagnostics
+
+	config := m.(*Config)
+
+	payload := map[string]interface{}{
+		"name": d.Get("name").(string),
+		"description": d.Get("description").(string),
+		"domain_name": d.Get("domain_name").(string),
+		"town": d.Get("town").(string),
+		"content_version": d.Get("content_version").(int),
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes"
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	//log.Print("Req Payload:" + string(req))
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	
+	//log.Print("Req Payload with Headers:" + req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	var responseData map[string]interface{}
+	
+	if err := json.Unmarshal(body, &responseData); err != nil {
+		return diag.FromErr(err)
+	}
+
+
+	if resp.StatusCode != http.StatusCreated {
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
+	}
+
+	homeUUID := responseData["uuid"].(string)
+	d.SetId(homeUUID)
+
+	log.Print("resourceHomeCreate: end")
+
+	return diags
+}
+
+func resourceHomeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 return nil
 }
 
-func resourceHomeRead(d *schema.ResourceData, m interface{}) error {
+func resourceHomeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 return nil
 }
 
-func resourceHomeUpdate(d *schema.ResourceData, m interface{}) error {
-return nil
-}
+func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
-func resourceHomeDelete(d *schema.ResourceData, m interface{}) error {
 return nil
 }
 
