@@ -6,10 +6,12 @@ package main
 import (
 	"log"
 	"fmt"
+	"bytes"
 	"regexp"
 	"context"
 	"net/http"
 	"io/ioutil"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
@@ -88,58 +90,44 @@ func configure(p *schema.Provider) schema.ConfigureContextFunc {
 
 
 func resourceHome() *schema.Resource {
-	log.Print("Resource Home: start")
+	log.Print("Resource:start")
 	resource := &schema.Resource{
-		Create: resourceHomeCreate,
-		Read: resourceHomeRead,
-		Update: resourceHomeUpdate,
-		Delete: resourceHomeDelete,
-
+		CreateContext: resourceHomeCreate,
+		ReadContext: resourceHomeRead,
+		UpdateContext: resourceHomeUpdate,
+		DeleteContext: resourceHomeDelete,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "Name of the Terra Home",
+				Description: "Name of home",
 			},
 			"description": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "Description of the Terra Home",
-
+				Description: "Description of home",
 			},
-
 			"domain_name": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "AWS Cloufront domain name",
 				ValidateFunc: validateCloudFrontDomainName,
+				Description: "Domain name of home eg. *.cloudfront.net",
 			},
 			"town": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "The Town type",
 				ValidateFunc: validateTown,
+				Description: "The town to which the home will belong to",
 			},
 			"content_version": {
 				Type: schema.TypeInt,
 				Required: true,
-
-//				computed: true,
-
-				ConflictsWith: []string{"content_version_increment"},
-			},
-			"content_version_increment": {
-				Type: schema.TypeBool,
-				Default: true,
-				Optional: true,
-
-				ConflictsWith: []string{"content_version"},
-
+				Description: "The content version of the home",
 			},
 		},
 	}
-	log.Print("Resource Home: end")
-	return Resource
+	log.Print("Resource:start")
+	return resource
 }
 
 
@@ -189,9 +177,11 @@ func validateUUID(v interface{}, s string) (ws []string, errors []error){
 	log.Print("validateUUID: end")
 	return
 }
-func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics, error {
+func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Print("resourceHomeCreate: start")
 	var diags diag.Diagnostics
+
+	config := m.(*Config)
 
 	payload := map[string]interface{}{
 		"name": d.Get("name").(string),
@@ -214,15 +204,15 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	log.Print("Req Payload:" +req)
+	//log.Print("Req Payload:" + string(req))
 
 	// Add Header to request (from above)
 
 	req.Header.Set("Authorization", "Bearer "+config.Token)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "applicaton/json")
+	req.Header.Set("Accept", "application/json")
 	
-	log.Print("Req Payload with Headers:" +req)
+	//log.Print("Req Payload with Headers:" + req)
 
 	client := http.Client{}
 	resp, err := client.Do(req)
@@ -239,13 +229,13 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 		}
 	var responseData map[string]interface{}
 	
-	if err := json.UnMarshal(body, &responseData); err != nil {
+	if err := json.Unmarshal(body, &responseData); err != nil {
 		return diag.FromErr(err)
 	}
 
 
 	if resp.StatusCode != http.StatusCreated {
-		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(resp.Body))
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
 	}
 
 	homeUUID := responseData["uuid"].(string)
@@ -256,15 +246,15 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	return diags
 }
 
-func resourceHomeRead(d *schema.ResourceData, m interface{}) error {
+func resourceHomeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 return nil
 }
 
-func resourceHomeUpdate(d *schema.ResourceData, m interface{}) error {
+func resourceHomeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 return nil
 }
 
-func resourceHomeDelete(d *schema.ResourceData, m interface{}) error {
+func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 return nil
 }
 
