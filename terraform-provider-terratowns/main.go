@@ -5,10 +5,13 @@ package main
 // multiple imports can be grouped inside brackets with each import in a line
 import (
 	"log"
+	"fmt"
 	"regexp"
-	"github.com/hashicorp/terraform-plugin-sdk/plugin"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"context"
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // func main(): Defines the main function, the entry point of the app. 
@@ -18,14 +21,19 @@ func main(){
 		ProviderFunc: Provider,
 	})
 }
+type Config struct {
+	Endpoint string
+	Token string
+	UserUuid string
+}
 
 func Provider() *schema.Provider {
 	p := &schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
-			"my_provider_home": resourceHome(),
+			"terratowns_home": resourceHome(),
 		},
-		DatasourcesMap: map[string]*schema.Resource{},
-		Schema: map[string]*schema.Resource{
+		DataSourcesMap: map[string]*schema.Resource{},
+		Schema: map[string]*schema.Schema{
 			"endpoint_url": {
 				Type: schema.TypeString,
 				Required: true,
@@ -42,10 +50,10 @@ func Provider() *schema.Provider {
 			"user_uuid": {
 				Type: schema.TypeString,
 				Required: true,
-				ValidateFunc: validateUUID
-				Description: "The UUID of the user."
-			}
-		}
+				ValidateFunc: validateUUID,
+				Description: "The UUID of the user.",
+			},
+		},
 		
 
 	}
@@ -54,15 +62,15 @@ func Provider() *schema.Provider {
 }
 
 func configure(p *schema.Provider) schema.ConfigureContextFunc {
-	return func(context context.Context, d *schema.ResourceData) (interface{}, diag Diagnostics) {
-		log.Print('providerConfigure: start')
-		var diags diag.Diagnostics
+	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		log.Print("providerConfigure: start")
+		//var diags diag.Diagnostics
 		config := Config {
 			Endpoint: d.Get("endpoint_url").(string),
 			Token: d.Get("token").(string),
-			UserUuid: d.get("user_uuid").(string),
+			UserUuid: d.Get("user_uuid").(string),
 		}
-		log.Print('providerConfigure: end')
+		log.Print("providerConfigure: end")
 		return &config, nil
 		}
 	}
@@ -85,7 +93,7 @@ func resourceHome() *schema.Resource {
 				Type: schema.TypeString,
 				Required: true,
 				Description: "Description of the Terra Home",
-			}
+			},
 			"domain_name": {
 				Type: schema.TypeString,
 				Required: true,
@@ -101,23 +109,40 @@ func resourceHome() *schema.Resource {
 			"content_version": {
 				Type: schema.TypeInt,
 				Required: true,
-				computed: true,
+//				computed: true,
 				ConflictsWith: []string{"content_version_increment"},
 			},
 			"content_version_increment": {
 				Type: schema.TypeBool,
 				Default: true,
 				Optional: true,
-				ConflictsWith: []string{"content_version",}
+				ConflictsWith: []string{"content_version"},
 			},
 		},
 	}
 }
 
-func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors []error){
-	value :=v.(string)
+func validateTown(v interface{}, t string) (ws []string, errors []error){
+	value := v.(string)
 
-	pattern := `^[a-zA-Z0-9-]+\.cloudfront\.net$`
+	validTowns := map[string]bool {
+		"melomaniac-mansion": true,
+        "cooker-cove":        true,
+        "video-valley":       true,
+        "the-nomad-pad":      true,
+        "gamers-grotto":      true,
+	}
+
+	if !validTowns[value] {
+		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
+	}
+	return
+}
+
+func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors []error){
+	value := v.(string)
+
+	pattern  := `^[a-zA-Z0-9-]+\.cloudfront\.net$`
 	match, _ := regexp.MatchString(pattern, value)
 
 	if !match {
@@ -126,23 +151,33 @@ func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors 
 	return
 }
 
-func resourceHomeCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*APIClient)
-
-
-}
 
 func validateUUID(v interface{}, s string) (ws []string, errors []error){
-	log.Print('validateUUID: start')
+	log.Print("validateUUID: start")
 
 	value := v.(string)
 
-	if _, errors = uuid.Parse(value)
+	_, err := uuid.Parse(value)
 
-	if !errors {
+	if err != nil {
 		errors = append(errors, fmt.Errorf("%s is not a valid user UUID", value))
 	}
 
-	log.Print('validateUUID: end')
+	log.Print("validateUUID: end")
 	return
+}
+func resourceHomeCreate(d *schema.ResourceData, m interface{}) error {
+return nil
+}
+
+func resourceHomeRead(d *schema.ResourceData, m interface{}) error {
+return nil
+}
+
+func resourceHomeUpdate(d *schema.ResourceData, m interface{}) error {
+return nil
+}
+
+func resourceHomeDelete(d *schema.ResourceData, m interface{}) error {
+return nil
 }
