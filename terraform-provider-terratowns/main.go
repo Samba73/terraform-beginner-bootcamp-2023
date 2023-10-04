@@ -5,6 +5,7 @@ package main
 // multiple imports can be grouped inside brackets with each import in a line
 import (
 	"log"
+
 	"fmt"
 	"regexp"
 	"context"
@@ -12,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+
 )
 
 // func main(): Defines the main function, the entry point of the app. 
@@ -21,19 +23,23 @@ func main(){
 		ProviderFunc: Provider,
 	})
 }
+
 type Config struct {
 	Endpoint string
 	Token string
 	UserUuid string
 }
 
+
 func Provider() *schema.Provider {
 	p := &schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
+
 			"terratowns_home": resourceHome(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{},
 		Schema: map[string]*schema.Schema{
+
 			"endpoint_url": {
 				Type: schema.TypeString,
 				Required: true,
@@ -50,10 +56,12 @@ func Provider() *schema.Provider {
 			"user_uuid": {
 				Type: schema.TypeString,
 				Required: true,
+
 				ValidateFunc: validateUUID,
 				Description: "The UUID of the user.",
 			},
 		},
+
 		
 
 	}
@@ -62,6 +70,7 @@ func Provider() *schema.Provider {
 }
 
 func configure(p *schema.Provider) schema.ConfigureContextFunc {
+
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		log.Print("providerConfigure: start")
 		//var diags diag.Diagnostics
@@ -71,6 +80,7 @@ func configure(p *schema.Provider) schema.ConfigureContextFunc {
 			UserUuid: d.Get("user_uuid").(string),
 		}
 		log.Print("providerConfigure: end")
+
 		return &config, nil
 		}
 	}
@@ -93,7 +103,9 @@ func resourceHome() *schema.Resource {
 				Type: schema.TypeString,
 				Required: true,
 				Description: "Description of the Terra Home",
+
 			},
+
 			"domain_name": {
 				Type: schema.TypeString,
 				Required: true,
@@ -109,18 +121,23 @@ func resourceHome() *schema.Resource {
 			"content_version": {
 				Type: schema.TypeInt,
 				Required: true,
+
 //				computed: true,
+
 				ConflictsWith: []string{"content_version_increment"},
 			},
 			"content_version_increment": {
 				Type: schema.TypeBool,
 				Default: true,
 				Optional: true,
+
 				ConflictsWith: []string{"content_version"},
+
 			},
 		},
 	}
 }
+
 
 func validateTown(v interface{}, t string) (ws []string, errors []error){
 	value := v.(string)
@@ -143,6 +160,7 @@ func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors 
 	value := v.(string)
 
 	pattern  := `^[a-zA-Z0-9-]+\.cloudfront\.net$`
+
 	match, _ := regexp.MatchString(pattern, value)
 
 	if !match {
@@ -150,6 +168,7 @@ func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors 
 	}
 	return
 }
+
 
 
 func validateUUID(v interface{}, s string) (ws []string, errors []error){
@@ -181,3 +200,4 @@ return nil
 func resourceHomeDelete(d *schema.ResourceData, m interface{}) error {
 return nil
 }
+
