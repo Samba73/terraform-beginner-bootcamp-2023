@@ -149,23 +149,6 @@ func validateTown(v interface{}, t string) (ws []string, errors []error){
 }
 
 
-func validateTown(v interface{}, t string) (ws []string, errors []error){
-	value := v.(string)
-
-	validTowns := map[string]bool {
-		"melomaniac-mansion": true,
-        "cooker-cove":        true,
-        "video-valley":       true,
-        "the-nomad-pad":      true,
-        "gamers-grotto":      true,
-	}
-
-	if !validTowns[value] {
-		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
-	}
-	return
-}
-
 func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors []error){
 	value := v.(string)
 
