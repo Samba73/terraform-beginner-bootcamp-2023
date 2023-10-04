@@ -5,10 +5,11 @@ package main
 // multiple imports can be grouped inside brackets with each import in a line
 import (
 	"log"
-
 	"fmt"
 	"regexp"
 	"context"
+	"net/http"
+	"io/ioutil"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
@@ -87,7 +88,8 @@ func configure(p *schema.Provider) schema.ConfigureContextFunc {
 
 
 func resourceHome() *schema.Resource {
-	return &schema.Resource{
+	log.Print("Resource Home: start")
+	resource := &schema.Resource{
 		Create: resourceHomeCreate,
 		Read: resourceHomeRead,
 		Update: resourceHomeUpdate,
@@ -136,6 +138,8 @@ func resourceHome() *schema.Resource {
 			},
 		},
 	}
+	log.Print("Resource Home: end")
+	return Resource
 }
 
 
@@ -185,8 +189,71 @@ func validateUUID(v interface{}, s string) (ws []string, errors []error){
 	log.Print("validateUUID: end")
 	return
 }
-func resourceHomeCreate(d *schema.ResourceData, m interface{}) error {
-return nil
+func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics, error {
+	log.Print("resourceHomeCreate: start")
+	var diags diag.Diagnostics
+
+	payload := map[string]interface{}{
+		"name": d.Get("name").(string),
+		"description": d.Get("description").(string),
+		"domain_name": d.Get("domain_name").(string),
+		"town": d.Get("town").(string),
+		"content_version": d.Get("content_version").(int),
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes"
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	log.Print("Req Payload:" +req)
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "applicaton/json")
+	
+	log.Print("Req Payload with Headers:" +req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	var responseData map[string]interface{}
+	
+	if err := json.UnMarshal(body, &responseData); err != nil {
+		return diag.FromErr(err)
+	}
+
+
+	if resp.StatusCode != http.StatusCreated {
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(resp.Body))
+	}
+
+	homeUUID := responseData["uuid"].(string)
+	d.SetId(homeUUID)
+
+	log.Print("resourceHomeCreate: end")
+
+	return diags
 }
 
 func resourceHomeRead(d *schema.ResourceData, m interface{}) error {
