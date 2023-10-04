@@ -68,30 +68,37 @@ class TerraTownsMockServer < Sinatra::Base
       error 406, "expected Accept header to be application/json"
     end
   end
-
+  # these are hard coded value which need to be replaced later (this is as same as return in any function)
   def x_access_code
     '9b49b3fb-b8e9-483c-b703-97ba88eef8e0'
   end
-
+ # these are hard coded value which need to be replaced later (this is as same as return in any function)
   def x_user_uuid
     'e328f4ab-b99f-421c-84c9-4ccea042c7d1'
   end
 
   def find_user_by_bearer_token
+    # https://swagger.io/docs/specification/authentication/bearer-authentication/
     auth_header = request.env["HTTP_AUTHORIZATION"]
+    # check if header is not null and Bearer token exists
     if auth_header.nil? || !auth_header.start_with?("Bearer ")
       error 401, "a1000 Failed to authenicate, bearer token invalid and/or teacherseat_user_uuid invalid"
     end
 
+    # Does the token match the one in our database?
+    # if we cant find it than return an error or if it doesn't match
+    # code = access_code = token
     code = auth_header.split("Bearer ")[1]
     if code != x_access_code
       error 401, "a1001 Failed to authenicate, bearer token invalid and/or teacherseat_user_uuid invalid"
     end
-
+    
+    # was there a user_uuid in the body payload json?
     if params['user_uuid'].nil?
       error 401, "a1002 Failed to authenicate, bearer token invalid and/or teacherseat_user_uuid invalid"
     end
 
+    # both the code and the user_uuid should be match
     unless code == x_access_code && params['user_uuid'] == x_user_uuid
       error 401, "a1003 Failed to authenicate, bearer token invalid and/or teacherseat_user_uuid invalid"
     end
@@ -104,24 +111,27 @@ class TerraTownsMockServer < Sinatra::Base
     puts "# create - POST /api/homes"
 
     begin
+      # Sinatra does not automatically parse json body as params
+      # like rails so we need to manually parse it. Line below is read from request body into payload variable
       payload = JSON.parse(request.body.read)
     rescue JSON::ParserError
       halt 422, "Malformed JSON"
     end
 
-    # Validate payload data
+    # assign the payload into variables
     name = payload["name"]
     description = payload["description"]
     domain_name = payload["domain_name"]
     content_version = payload["content_version"]
     town = payload["town"]
-
+    # print the variable value in terminal, helpful for debugging
     puts "name #{name}"
     puts "description #{description}"
     puts "domain_name #{domain_name}"
     puts "content_version #{content_version}"
     puts "town #{town}"
 
+    # Create a new Home model (class Home) and set the attributes
     home = Home.new
     home.town = town
     home.name = name
@@ -132,9 +142,10 @@ class TerraTownsMockServer < Sinatra::Base
     unless home.valid?
       error 422, home.errors.messages.to_json
     end
-
+    # Random UUID is generated and saved to variable
     uuid = SecureRandom.uuid
     puts "uuid #{uuid}"
+    # assign the value to home global variable (mock database)
     $home = {
       uuid: uuid,
       name: name,
