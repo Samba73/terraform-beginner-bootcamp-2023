@@ -148,6 +148,24 @@ func validateTown(v interface{}, t string) (ws []string, errors []error){
 	return
 }
 
+
+func validateTown(v interface{}, t string) (ws []string, errors []error){
+	value := v.(string)
+
+	validTowns := map[string]bool {
+		"melomaniac-mansion": true,
+        "cooker-cove":        true,
+        "video-valley":       true,
+        "the-nomad-pad":      true,
+        "gamers-grotto":      true,
+	}
+
+	if !validTowns[value] {
+		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
+	}
+	return
+}
+
 func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors []error){
 	value := v.(string)
 
@@ -160,7 +178,6 @@ func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors 
 	}
 	return
 }
-
 
 
 func validateUUID(v interface{}, s string) (ws []string, errors []error){
@@ -177,6 +194,7 @@ func validateUUID(v interface{}, s string) (ws []string, errors []error){
 	log.Print("validateUUID: end")
 	return
 }
+
 func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	log.Print("resourceHomeCreate: start")
 	var diags diag.Diagnostics
@@ -255,6 +273,7 @@ return nil
 }
 
 func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+
 return nil
 }
 

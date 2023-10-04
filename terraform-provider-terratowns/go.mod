@@ -2,6 +2,7 @@ module terraform-provider-terratowns
 
 go 1.21.1
 
+
 require (
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.29.0
