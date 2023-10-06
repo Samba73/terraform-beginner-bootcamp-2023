@@ -90,7 +90,7 @@ func configure(p *schema.Provider) schema.ConfigureContextFunc {
 
 
 func resourceHome() *schema.Resource {
-	log.Print("Resource:start")
+	log.Print("Resource: start")
 	resource := &schema.Resource{
 		CreateContext: resourceHomeCreate,
 		ReadContext: resourceHomeRead,
@@ -127,7 +127,7 @@ func resourceHome() *schema.Resource {
 		},
 
 	}
-	log.Print("Resource:start")
+	log.Print("Resource: end")
 	return resource
 
 }
@@ -145,7 +145,7 @@ func validateTown(v interface{}, t string) (ws []string, errors []error){
 	}
 
 	if !validTowns[value] {
-		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
+		errors = append(errors, fmt.Errorf("%s is not a valid Town to associate", value))
 	}
 	return
 }
@@ -254,11 +254,133 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 }
 
 func resourceHomeRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-return nil
+
+	log.Print("resourceHomeRead: start")
+	var diags diag.Diagnostics
+
+	config := m.(*Config)
+
+	homeUUID := d.Id()
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	//log.Print("Req Payload:" + string(req))
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	
+	//log.Print("Req Payload with Headers:" + req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+
+	body, err := io.ReadAll(resp.Body)
+
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	var responseData map[string]interface{}
+	
+	if resp.StatusCode == http.StatusOK {
+
+		if err := json.Unmarshal(body, &responseData); err != nil {
+			return diag.FromErr(err)
+		}
+
+		d.Set("name", responseData["name"].(string))
+		d.Set("description", responseData["description"].(string))
+		d.Set("content_version", responseData["content_version"].(float64))
+		d.Set("town", responseData["town"].(string))
+		d.Set("domain_name", responseData["domain_name"].(string))
+
+	} else if resp.StatusCode != http.StatusNotFound {
+		d.SetId("")
+	} else if resp.StatusCode != http.StatusOK {	
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
+	}
+
+	log.Print("resourceHomeRead: end")
+
+	return diags
+
 }
 
 func resourceHomeUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-return nil
+
+	log.Print("resourceHomeUpdate: start")
+	var diags diag.Diagnostics
+
+	config := m.(*Config)
+
+	homeUUID := d.Id()
+
+	payload := map[string]interface{}{
+		"name": d.Get("name").(string),
+		"description": d.Get("description").(string),
+		"content_version": d.Get("content_version").(int),
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	//log.Print("Req Payload:" + string(req))
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	
+	//log.Print("Req Payload with Headers:" + req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+
+	
+	if resp.StatusCode != http.StatusOK {
+
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d", resp.StatusCode)
+	}
+
+	log.Print("resourceHomeUpdate: end")
+	d.Set("name", payload["name"].(string))
+	d.Set("description", payload["description"].(string))
+	d.Set("content_version", payload["content_version"].(int))
+	return diags
+
 }
 
 func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {

@@ -24,11 +24,13 @@ provider "terratowns" {
 }
 
 resource "terratowns_home" "home" {
-  name            = "To test the Create home"
+
+  name            = "To test the Create home.Back here."
   description     = <<DESCRIPTION
                       This is HEREDOC entry for multi line description.
                       I would have to think about a Terra Home name and Town
-                      to add my home. This is now only a test
+                      to add my home. This is now only a test. Going well.!!!.
+
                       DESCRIPTION
   domain_name     = "3fdq3gz.cloudfront.net"
   town            = "gamers-grotto"
