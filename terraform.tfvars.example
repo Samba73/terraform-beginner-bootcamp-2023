@@ -1,6 +1,7 @@
-user_uuid       ="fc8f6e72-e3cd-490f-b167-5286496d107b"
-s3_bucket_name  ="samba07-tf-29sep2023-issue36"
-index_html_path ="/workspace/terraform-beginner-bootcamp-2023/public/index.html"
-error_html_path ="/workspace/terraform-beginner-bootcamp-2023/public/error.html"
-assets_path     ="/workspace/terraform-beginner-bootcamp-2023/public/Raji"
-content_version =1
+terratowns_endpoint ="https://terratowns.cloud/api"
+terratowns_town     ="missingo"
+s3_bucket_name      ="samba07-tf-29sep2023-issue48-250"
+index_html_path     ="/workspace/terraform-beginner-bootcamp-2023/public/index.html"
+error_html_path     ="/workspace/terraform-beginner-bootcamp-2023/public/error.html"
+assets_path         ="/workspace/terraform-beginner-bootcamp-2023/public/pac-man/assets"
+content_version     =1

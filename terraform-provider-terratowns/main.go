@@ -142,6 +142,7 @@ func validateTown(v interface{}, t string) (ws []string, errors []error){
         "video-valley":       true,
         "the-nomad-pad":      true,
         "gamers-grotto":      true,
+		"missingo":			  true,	
 	}
 
 	if !validTowns[value] {

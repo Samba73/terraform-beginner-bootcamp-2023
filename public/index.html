@@ -3,13 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terraformers</title>
+    <title>Pac-Man Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+        }
+        h1 {
+            color: yellow;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .thumbnail {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        img {
+            max-width: 100%;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Welcome Terraformers!</h1>
-    </header>
-    <img src="/assets/Raji1.jpg" />
-    <img src="/assets/raji2.png" />
+    <div class="container">
+        <img class="thumbnail" src="/assets/pacman-thumb.png" alt="Pac-Man Thumbnail" />
+        <h1>Welcome to the Pac-Man Game</h1>
+        <p>
+            Pac-Man is a classic arcade game where you control a yellow character that eats dots while avoiding ghosts.
+        </p>
+        <img src="/assets/Pacman.png" alt="Pac-Man" />
+        <h2>Rules:</h2>
+        <ul>
+            <li>Control Pac-Man using arrow keys to navigate the maze.</li>
+            <li>Eat all the dots in the maze to advance to the next level.</li>
+            <li>Avoid the ghosts. If a ghost catches Pac-Man, you lose a life.</li>
+            <li>You have a limited number of lives, so be careful!</li>
+        </ul>
+        <h2>Instructions:</h2>
+        <p>
+            Use the arrow keys (up, down, left, right) to move Pac-Man through the maze. Eat all the dots to clear the level. The game gets progressively harder with more ghosts as you advance.
+        </p>
+        <h2>Game Winning:</h2>
+        <p>
+            To win the game, you must clear all the levels by eating all the dots without losing all your lives to the ghosts.
+        </p>
+    </div>
 </body>
 </html>
+
+
