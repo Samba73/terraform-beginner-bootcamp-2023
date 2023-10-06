@@ -17,34 +17,33 @@ terraform {
 
 provider "terratowns" {
 
-  endpoint_url    = "http://localhost:4567/api"
-  user_uuid       = "e328f4ab-b99f-421c-84c9-4ccea042c7d1"
-  token           = "9b49b3fb-b8e9-483c-b703-97ba88eef8e0"
+  endpoint_url    = var.terratowns_endpoint
+  user_uuid       = var.user_uuid
+  token           = var.terratowns_access_token
 
 }
 
 resource "terratowns_home" "home" {
 
-  name            = "To test the Create home.Back here."
+  name            = "Pac-Man: The Eternal Feast"
   description     = <<DESCRIPTION
-                      This is HEREDOC entry for multi line description.
-                      I would have to think about a Terra Home name and Town
-                      to add my home. This is now only a test. Going well.!!!.
-
+                      Enter the mesmerizing world of Pac-Mania, where you control the iconic yellow hero on an endless quest to munch his way through mazes filled with colorful dots.
+                      Dodge the mischievous ghosts, gobble power pellets, and embark on an epic adventure that blends classic arcade nostalgia with modern twists. 
+                      Can you conquer the ever-changing labyrinth and become the ultimate Dot Devourer?
                       DESCRIPTION
-  domain_name     = "3fdq3gz.cloudfront.net"
-  town            = "gamers-grotto"
+  domain_name     = module.terrahouse_aws.cloudfront_url
+  town            = var.terratowns_town
   content_version = 1
 }
 
 
-# module "terrahouse_aws" {
-#   source                = "./modules/terrahouse_aws"
-#   user_uuid             = var.user_uuid  
-#   s3_bucket_name        = var.s3_bucket_name
-#   index_html_path       = var.index_html_path
-#   error_html_path       = var.error_html_path 
-#   content_version       = var.content_version 
-#   assets_path           = var.assets_path
-#   }
+module "terrahouse_aws" {
+  source                = "./modules/terrahouse_aws"
+  user_uuid             = var.user_uuid  
+  s3_bucket_name        = var.s3_bucket_name
+  index_html_path       = var.index_html_path
+  error_html_path       = var.error_html_path 
+  content_version       = var.content_version 
+  assets_path           = var.assets_path
+  }
 

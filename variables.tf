@@ -1,3 +1,12 @@
+variable "terratowns_access_token" {
+  type        = string 
+}
+variable "terratowns_endpoint" {
+  type        = string 
+}
+variable "terratowns_town" {
+  type        = string 
+}
 variable "user_uuid" {
   description = "The user UUID who created this bucket"
   type        = string
