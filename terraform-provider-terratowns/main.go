@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"context"
 	"net/http"
-	"io/ioutil"
+	"io"
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -125,9 +125,11 @@ func resourceHome() *schema.Resource {
 				Description: "The content version of the home",
 			},
 		},
+
 	}
 	log.Print("Resource:start")
 	return resource
+
 }
 
 
@@ -148,23 +150,6 @@ func validateTown(v interface{}, t string) (ws []string, errors []error){
 	return
 }
 
-
-func validateTown(v interface{}, t string) (ws []string, errors []error){
-	value := v.(string)
-
-	validTowns := map[string]bool {
-		"melomaniac-mansion": true,
-        "cooker-cove":        true,
-        "video-valley":       true,
-        "the-nomad-pad":      true,
-        "gamers-grotto":      true,
-	}
-
-	if !validTowns[value] {
-		errors = append(errors, fmt.Errorf("%s is not a valid AWS Cloudfront domain name", value))
-	}
-	return
-}
 
 func validateCloudFrontDomainName(v interface{}, k string) (ws []string, errors []error){
 	value := v.(string)
@@ -241,7 +226,9 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	defer resp.Body.Close()
 
 	// Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
+
+	body, err := io.ReadAll(resp.Body)
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -252,7 +239,9 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	}
 
 
-	if resp.StatusCode != http.StatusCreated {
+
+	if resp.StatusCode != http.StatusOK {
+
 		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
 	}
 
@@ -274,6 +263,49 @@ return nil
 
 func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
-return nil
+
+	log.Print("resourceHomeDelete: start")
+	var diags diag.Diagnostics
+
+	config := m.(*Config)
+
+	homeUUID := d.Id()
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	//log.Print("Req Payload:" + string(req))
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	
+	//log.Print("Req Payload with Headers:" + req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d", resp.StatusCode)
+	}
+
+	d.SetId("")
+
+	log.Print("resourceHomeDelete: end")
+
+	return diags
+
 }
 
