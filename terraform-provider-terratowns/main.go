@@ -125,9 +125,11 @@ func resourceHome() *schema.Resource {
 				Description: "The content version of the home",
 			},
 		},
+
 	}
 	log.Print("Resource:start")
 	return resource
+
 }
 
 
@@ -224,7 +226,9 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	defer resp.Body.Close()
 
 	// Read the response body
+
 	body, err := io.ReadAll(resp.Body)
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -235,7 +239,9 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	}
 
 
+
 	if resp.StatusCode != http.StatusOK {
+
 		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
 	}
 
@@ -256,6 +262,7 @@ return nil
 }
 
 func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
+
 
 	log.Print("resourceHomeDelete: start")
 	var diags diag.Diagnostics
@@ -299,5 +306,6 @@ func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface
 	log.Print("resourceHomeDelete: end")
 
 	return diags
+
 }
 
