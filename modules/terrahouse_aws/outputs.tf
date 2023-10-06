@@ -9,3 +9,10 @@ output "s3_website_url" {
 output "cloudfront_url" {
   value = aws_cloudfront_distribution.s3_distribution.domain_name
 }
+
+# output "home_id" {
+#   value = {
+#     pac-man_home_id  = terratowns_home.pac-man.id
+#     crepe_home_id    = terratowns_home.crepe.id
+#   }
+# }
