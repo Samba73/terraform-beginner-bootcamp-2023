@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"context"
 	"net/http"
-	"io/ioutil"
+	"io"
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -224,7 +224,7 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	defer resp.Body.Close()
 
 	// Read the response body
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -235,7 +235,7 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 	}
 
 
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return diag.Errorf("Failed to create resource. HTTP Status Code: %d, The Response Body is: %s", resp.StatusCode, string(body))
 	}
 
@@ -257,6 +257,47 @@ return nil
 
 func resourceHomeDelete(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 
-return nil
+	log.Print("resourceHomeDelete: start")
+	var diags diag.Diagnostics
+
+	config := m.(*Config)
+
+	homeUUID := d.Id()
+
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	log.Print("The API URL is:" + url)
+
+	// Create HTTP request
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	//log.Print("Req Payload:" + string(req))
+
+	// Add Header to request (from above)
+
+	req.Header.Set("Authorization", "Bearer "+config.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	
+	//log.Print("Req Payload with Headers:" + req)
+
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+		return diag.Errorf("Failed to create resource. HTTP Status Code: %d", resp.StatusCode)
+	}
+
+	d.SetId("")
+
+	log.Print("resourceHomeDelete: end")
+
+	return diags
 }
 
