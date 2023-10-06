@@ -1,11 +1,11 @@
-# terraform {
-#   cloud {
-#     organization = "beginner-bootcamp"
-#     workspaces {
-#       name = "terra-house-1"
-#     }
-#   }
-# } 
+terraform {
+  cloud {
+    organization = "beginner-bootcamp"
+    workspaces {
+      name = "terra-house-1"
+    }
+  }
+} 
 terraform {
   required_providers {
   terratowns = {
@@ -17,13 +17,23 @@ terraform {
 
 provider "terratowns" {
 
-  endpoint_url    = var.terratowns_endpoint
-  user_uuid       = var.user_uuid
-  token           = var.terratowns_access_token
+  endpoint_url    = var.terratowns_schema.endpoint
+  user_uuid       = var.terratowns_schema.user_uuid
+  token           = var.terratowns_schema.access_token
 
 }
 
-resource "terratowns_home" "home" {
+module "pac-man" {
+  
+  source                = "./modules/terrahouse_aws"
+  user_uuid             = var.terratowns_schema.user_uuid
+  s3_bucket_name        = var.s3_bucket_name.pac-man
+  public_path           = var.pac-man.public_path 
+  content_version       = var.pac-man.content_version 
+  
+  }
+
+resource "terratowns_home" "pac-man" {
 
   name            = "Pac-Man: The Eternal Feast"
   description     = <<DESCRIPTION
@@ -31,19 +41,33 @@ resource "terratowns_home" "home" {
                       Dodge the mischievous ghosts, gobble power pellets, and embark on an epic adventure that blends classic arcade nostalgia with modern twists. 
                       Can you conquer the ever-changing labyrinth and become the ultimate Dot Devourer?
                       DESCRIPTION
-  domain_name     = module.terrahouse_aws.cloudfront_url
-  town            = var.terratowns_town
-  content_version = 1
+  domain_name     = module.pac-man.cloudfront_url
+  town            = var.terratowns_schema.town
+  content_version = var.pac-man.content_version 
 }
 
 
-module "terrahouse_aws" {
+module "crepe" {
   source                = "./modules/terrahouse_aws"
-  user_uuid             = var.user_uuid  
-  s3_bucket_name        = var.s3_bucket_name
-  index_html_path       = var.index_html_path
-  error_html_path       = var.error_html_path 
-  content_version       = var.content_version 
-  assets_path           = var.assets_path
+  user_uuid             = var.terratowns_schema.user_uuid
+  s3_bucket_name        = var.s3_bucket_name.crepe
+  public_path           = var.crepe.public_path 
+  content_version       = var.crepe.content_version 
+  
   }
+
+resource "terratowns_home" "crepe" {
+
+  name            = "Indulge in the rich, velvety delight of chocolate crepes, a heavenly treat for your taste buds."
+  description     = <<DESCRIPTION
+                      Satisfy your sweet cravings with our delectable chocolate crepes. 
+                      These thin, luscious pancakes are made with a cocoa-infused batter, resulting in a decadent, melt-in-your-mouth experience. 
+                      Whether filled with chocolate chips, fresh berries, or a dollop of whipped cream, our chocolate crepes are a delightful dessert or breakfast option that will leave you craving for more. 
+                      Enjoy the perfect blend of rich chocolate flavor and delicate pancake texture with every bite. Elevate your culinary journey and indulge in the ultimate chocolate lover's delight.
+                      DESCRIPTION
+  domain_name     = module.crepe.cloudfront_url
+  town            = var.terratowns_schema.town
+  content_version = var.crepe.content_version
+}
+
 

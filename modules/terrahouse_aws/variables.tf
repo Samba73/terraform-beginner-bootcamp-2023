@@ -17,19 +17,27 @@ variable "s3_bucket_name" {
   }
 }
 
-variable "index_html_path" {
-  description = "Path to index.html file for static website"
-  validation {
-    condition = fileexists(var.index_html_path)
-    error_message = "The specified index.html file does not exists..."
-  }
-}
+# variable "index_html_path" {
+#   description = "Path to index.html file for static website"
+#   validation {
+#     condition = fileexists(var.index_html_path)
+#     error_message = "The specified index.html file does not exists..."
+#   }
+# }
 
-variable "error_html_path" {
-  description = "Path to error.html file for static website"
+# variable "error_html_path" {
+#   description = "Path to error.html file for static website"
+#   validation {
+#     condition = fileexists(var.error_html_path)
+#     error_message = "The specified error.html file does not exists..."
+#   }
+# }
+
+variable "public_path" {
+  description = "Path to content for the home"
   validation {
-    condition = fileexists(var.error_html_path)
-    error_message = "The specified error.html file does not exists..."
+    condition = fileexists("${var.public_path}/index.html")
+    error_message = "The specified path does not contain expected content..."
   }
 }
 
@@ -43,8 +51,8 @@ variable "content_version" {
   }
 }
 
-variable "assets_path" {
-  description = "Path to a file"
-  type        = string
-}
+# variable "assets_path" {
+#   description = "Path to a file"
+#   type        = string
+# }
 
