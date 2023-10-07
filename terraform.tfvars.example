@@ -1,7 +1,18 @@
-terratowns_endpoint ="https://terratowns.cloud/api"
-terratowns_town     ="missingo"
-s3_bucket_name      ="samba07-tf-29sep2023-issue48-250"
-index_html_path     ="/workspace/terraform-beginner-bootcamp-2023/public/index.html"
-error_html_path     ="/workspace/terraform-beginner-bootcamp-2023/public/error.html"
-assets_path         ="/workspace/terraform-beginner-bootcamp-2023/public/pac-man/assets"
-content_version     =1
+terratowns_schema = {
+  //access_token     = var.access_token
+  endpoint         = "https://terratowns.cloud/api"
+  town             = "missingo"
+  //user_uuid        = var.user_uuid
+}
+s3_bucket_name = {
+  pac-man           = "samba07-tf-07oct2023-pacman"
+  crepe             = "samba07-tf-07oct2023-crepe"
+}
+pac-man = {
+  public_path       = "/workspace/terraform-beginner-bootcamp-2023/public/pac-man"
+  content_version   = 1
+}
+crepe = {
+  public_path       = "/workspace/terraform-beginner-bootcamp-2023/public/chocolate-crepe"
+  content_version   = 1
+}
