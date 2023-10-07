@@ -18,15 +18,19 @@ terraform {
 provider "terratowns" {
 
   endpoint_url    = var.terratowns_schema.endpoint
-  user_uuid       = var.terratowns_schema.user_uuid
-  token           = var.terratowns_schema.access_token
+
+  user_uuid       = var.user_uuid
+  token           = var.access_token
+
 
 }
 
 module "pac-man" {
   
   source                = "./modules/terrahouse_aws"
-  user_uuid             = var.terratowns_schema.user_uuid
+
+  user_uuid             = var.user_uuid
+
   s3_bucket_name        = var.s3_bucket_name.pac-man
   public_path           = var.pac-man.public_path 
   content_version       = var.pac-man.content_version 
@@ -49,7 +53,9 @@ resource "terratowns_home" "pac-man" {
 
 module "crepe" {
   source                = "./modules/terrahouse_aws"
-  user_uuid             = var.terratowns_schema.user_uuid
+
+  user_uuid             = var.user_uuid
+
   s3_bucket_name        = var.s3_bucket_name.crepe
   public_path           = var.crepe.public_path 
   content_version       = var.crepe.content_version 
