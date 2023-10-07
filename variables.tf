@@ -1,3 +1,4 @@
+
 variable "terratowns_schema" {
   type        = object({
     //access_token = string
@@ -8,6 +9,7 @@ variable "terratowns_schema" {
 }
 variable "user_uuid" {}
 variable "access_token" {}
+
 
 variable "s3_bucket_name" {
   description = "The bucket name for the website"
