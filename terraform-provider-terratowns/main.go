@@ -220,7 +220,7 @@ func resourceHomeCreate(ctx context.Context, d *schema.ResourceData, m interface
 
 	client := http.Client{}
 	resp, err := client.Do(req)
-
+	log.Print(resp.Body)
 	if err != nil {
 		return diag.FromErr(err)
 	}
