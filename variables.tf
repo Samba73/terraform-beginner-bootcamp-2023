@@ -3,7 +3,9 @@ variable "terratowns_schema" {
   type        = object({
     //access_token = string
     endpoint     = string
+
   //  town         = string
+
     //user_uuid    = string 
   })
 }
