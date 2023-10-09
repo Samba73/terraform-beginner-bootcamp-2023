@@ -46,7 +46,7 @@ resource "terratowns_home" "pac-man" {
                       Can you conquer the ever-changing labyrinth and become the ultimate Dot Devourer?
                       DESCRIPTION
   domain_name     = module.pac-man.cloudfront_url
-  town            = var.terratowns_schema.town
+  town            = var.pac-man.town
   content_version = var.pac-man.content_version 
 }
 
@@ -72,7 +72,7 @@ resource "terratowns_home" "crepe" {
                       Enjoy the perfect blend of rich chocolate flavor and delicate pancake texture with every bite. Elevate your culinary journey and indulge in the ultimate chocolate lover's delight.
                       DESCRIPTION
   domain_name     = module.crepe.cloudfront_url
-  town            = var.terratowns_schema.town
+  town            = var.crepe.town
   content_version = var.crepe.content_version
 }
 

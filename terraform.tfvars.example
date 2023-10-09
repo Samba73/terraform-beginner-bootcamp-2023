@@ -5,14 +5,16 @@ terratowns_schema = {
   //user_uuid        = var.user_uuid
 }
 s3_bucket_name = {
-  pac-man           = "samba07-tf-07oct2023-pacman"
-  crepe             = "samba07-tf-07oct2023-crepe"
+  pac-man           = "samba07-tf-gamers-grotto-pacman"
+  crepe             = "samba07-tf-cooker-cove-crepe"
 }
 pac-man = {
   public_path       = "/workspace/terraform-beginner-bootcamp-2023/public/pac-man"
   content_version   = 1
+  town              = "gamers-grotto"
 }
 crepe = {
   public_path       = "/workspace/terraform-beginner-bootcamp-2023/public/chocolate-crepe"
   content_version   = 1
+  town              = "cooker-code"
 }

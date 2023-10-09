@@ -3,7 +3,7 @@ variable "terratowns_schema" {
   type        = object({
     //access_token = string
     endpoint     = string
-    town         = string
+  //  town         = string
     //user_uuid    = string 
   })
 }
@@ -23,6 +23,7 @@ variable "pac-man" {
   type        = object({
     public_path = string
     content_version = number 
+    town = string
   })
 }
 
@@ -30,5 +31,6 @@ variable "crepe" {
   type        = object({
     public_path = string
     content_version = number 
+    town = string
   })
 }
